@@ -266,7 +266,6 @@ export default function Index() {
               </Link>
             ))}
           </CardContent>
->>>>>>>
         </Card>
       </div>
     </div>
