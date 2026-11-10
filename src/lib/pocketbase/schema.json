@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-10T21:45:41.705Z",
+  "generatedAt": "2026-11-10T21:56:41.926Z",
   "collections": [
     {
       "name": "users",
@@ -80,7 +80,7 @@
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["produto_acabado", "sucata_carepa_argola"]
+          "selectValues": ["produto_acabado", "sucata_carepa_argola", "faturamento_ciafal"]
         },
         {
           "name": "numero_nf",
@@ -169,7 +169,8 @@
             "nao_concluido",
             "fisico_concluido_pendente_fiscal",
             "concluido",
-            "erro_integracao"
+            "erro_integracao",
+            "aguardando_especificacao"
           ]
         },
         {

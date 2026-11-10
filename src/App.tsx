@@ -10,6 +10,7 @@ import Index from './pages/Index'
 import Login from './pages/Login'
 import MenuProcessos from './pages/MenuProcessos'
 import EdiSubcontratacaoForm from './pages/EdiSubcontratacaoForm'
+import FaturamentoCiafalForm from './pages/FaturamentoCiafalForm'
 import HistoricoProcessamentos from './pages/HistoricoProcessamentos'
 import AguardandoEspecificacao from './pages/AguardandoEspecificacao'
 import NotFound from './pages/NotFound'
@@ -70,7 +71,7 @@ const App = () => (
             {/* Os 7 processos de Saídas (Aguardando Especificação) */}
             <Route
               path="/processos/saidas/faturamento-vendas"
-              element={<AguardandoEspecificacao />}
+              element={<FaturamentoCiafalForm />}
             />
             <Route
               path="/processos/saidas/remessa-subcontratacao"

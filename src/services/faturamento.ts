@@ -5,8 +5,10 @@ import type {
   ParametroModuloRecord,
 } from '@/types/database'
 
+export type ProcessTypeFiltro = 'produto_acabado' | 'sucata_carepa_argola' | 'faturamento_ciafal'
+
 export async function listarNotasFiscais(
-  processType?: 'produto_acabado' | 'sucata_carepa_argola',
+  processType?: ProcessTypeFiltro,
 ): Promise<NotaFiscalRecord[]> {
   try {
     const filter = processType ? `process_type = '${processType}'` : ''
@@ -22,7 +24,7 @@ export async function listarNotasFiscais(
 }
 
 export async function buscarNotaFiscalPorChave(
-  processType: 'produto_acabado' | 'sucata_carepa_argola',
+  processType: ProcessTypeFiltro,
   numeroNf: string,
   serieNf: string,
   fornecedorCodigo?: string,
