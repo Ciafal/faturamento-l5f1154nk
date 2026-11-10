@@ -1,0 +1,430 @@
+{
+  "generatedAt": "2026-11-10T21:45:41.705Z",
+  "collections": [
+    {
+      "name": "users",
+      "type": "auth",
+      "apiRules": {
+        "list": "id = @request.auth.id",
+        "view": "id = @request.auth.id",
+        "create": "",
+        "update": "id = @request.auth.id",
+        "delete": "id = @request.auth.id"
+      },
+      "fields": [
+        {
+          "name": "name",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "avatar",
+          "type": "file",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "role",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": [
+            "consultor",
+            "operador_recebimento",
+            "operador_saida",
+            "reprocessador",
+            "auditor",
+            "administrador"
+          ]
+        },
+        {
+          "name": "company",
+          "type": "text",
+          "required": false,
+          "system": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX `idx_tokenKey__pb_users_auth_` ON `users` (`tokenKey`)",
+        "CREATE UNIQUE INDEX `idx_email__pb_users_auth_` ON `users` (`email`) WHERE `email` != ''"
+      ]
+    },
+    {
+      "name": "notas_fiscais",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "process_type",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": ["produto_acabado", "sucata_carepa_argola"]
+        },
+        {
+          "name": "numero_nf",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "serie_nf",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "fornecedor_codigo",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "fornecedor_nome",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "fornecedor_cnpj",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "cliente_codigo",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "cliente_nome",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "cliente_cnpj",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "categoria_nf",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "data_emissao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "valor_total",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "placa_veiculo",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "chave_acesso",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "status_recebimento",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": [
+            "nao_concluido",
+            "fisico_concluido_pendente_fiscal",
+            "concluido",
+            "erro_integracao"
+          ]
+        },
+        {
+          "name": "status_sap_codigo",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "status_sap_descricao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "doc_sap_migo",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "doc_sap_miro",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "itens_json",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "pedidos_json",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "integracao_json",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "is_simulated",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_nf_busca ON notas_fiscais (process_type, numero_nf, serie_nf, fornecedor_codigo)"
+      ]
+    },
+    {
+      "name": "historico_processamentos",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "user_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "user_email",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "user_nome",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "empresa",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "processo_id",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "processo_nome",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "tipo_operacao",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["entrada", "saida"]
+        },
+        {
+          "name": "numero_nf",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "serie_nf",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "fornecedor",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "cliente",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "status_anterior",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "status_posterior",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "resultado",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": ["sucesso", "pendente", "erro", "ja_processado"]
+        },
+        {
+          "name": "documento_sap",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "mensagens",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "detalhes_json",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_hist_proc_created ON historico_processamentos (processo_id, created DESC)"
+      ]
+    },
+    {
+      "name": "parametros_modulo",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "chave",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "categoria",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "descricao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "valor_json",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": ["CREATE UNIQUE INDEX idx_param_chave ON parametros_modulo (chave)"]
+    }
+  ]
+}

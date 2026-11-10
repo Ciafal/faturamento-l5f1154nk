@@ -1,0 +1,115 @@
+/* Global styles - Theme, font, utilities, animations and global components */
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* HUB Ciafal - Identidade Visual Pantone 2945 C (#004C97 -> HSL 210, 100%, 29.6%) */
+    --background: 210 20% 98%;
+    --foreground: 215 30% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 30% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 30% 15%;
+
+    /* Pantone 2945 */
+    --primary: 210 100% 29.6%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 30% 92%;
+    --secondary-foreground: 210 100% 25%;
+
+    --muted: 210 20% 94%;
+    --muted-foreground: 215 16% 45%;
+
+    --accent: 210 35% 91%;
+    --accent-foreground: 210 100% 25%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 25% 88%;
+    --input: 214 25% 88%;
+    --ring: 210 100% 29.6%;
+
+    --radius: 0.375rem;
+
+    --sidebar-background: 210 100% 18%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 210 100% 29.6%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 100% 24%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 210 80% 24%;
+    --sidebar-ring: 210 100% 45%;
+
+    --chart-1: 210 100% 29.6%;
+    --chart-2: 189 100% 38%;
+    --chart-3: 142 76% 36%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 0 84% 60%;
+  }
+
+  .dark {
+    --background: 215 30% 10%;
+    --foreground: 210 40% 98%;
+
+    --card: 215 30% 12%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 215 30% 12%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 90% 48%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 215 25% 20%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 215 25% 18%;
+    --muted-foreground: 215 16% 65%;
+
+    --accent: 215 25% 20%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 215 25% 22%;
+    --input: 215 25% 22%;
+    --ring: 210 90% 48%;
+
+    --sidebar-background: 215 35% 8%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 210 90% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 30% 16%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 215 25% 18%;
+    --sidebar-ring: 210 90% 48%;
+  }
+
+  /* NEVER REMOVE THIS */
+  section[aria-label='Notifications alt+T'] {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}
+
+@layer utilities {
+  .pantone-2945 {
+    background-color: #004c97;
+  }
+  .text-pantone-2945 {
+    color: #004c97;
+  }
+  .border-pantone-2945 {
+    border-color: #004c97;
+  }
+}
