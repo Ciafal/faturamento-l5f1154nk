@@ -5,7 +5,11 @@ import type {
   ParametroModuloRecord,
 } from '@/types/database'
 
-export type ProcessTypeFiltro = 'produto_acabado' | 'sucata_carepa_argola' | 'faturamento_ciafal'
+export type ProcessTypeFiltro =
+  | 'produto_acabado'
+  | 'sucata_carepa_argola'
+  | 'faturamento_ciafal'
+  | 'envio_tarugos_sucata'
 
 export async function listarNotasFiscais(
   processType?: ProcessTypeFiltro,

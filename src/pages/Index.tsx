@@ -254,12 +254,19 @@ export default function Index() {
                   <p className="text-[11px] text-slate-500 line-clamp-1">{p.descricao}</p>
                 </div>
 
-                <Badge variant="secondary" className="text-[10px] text-slate-500 bg-slate-100">
-                  Aguardando
-                </Badge>
+                {p.statusImplementacao === 'funcional_demonstracao' ? (
+                  <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200 text-[10px] font-semibold">
+                    Funcional (Demo)
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className="text-[10px] text-slate-500 bg-slate-100">
+                    Aguardando
+                  </Badge>
+                )}
               </Link>
             ))}
           </CardContent>
+>>>>>>>
         </Card>
       </div>
     </div>

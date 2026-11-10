@@ -42,7 +42,11 @@ export interface IntegracaoDetalhes {
 
 export interface NotaFiscalRecord {
   id: string
-  process_type: 'produto_acabado' | 'sucata_carepa_argola' | 'faturamento_ciafal'
+  process_type:
+    | 'produto_acabado'
+    | 'sucata_carepa_argola'
+    | 'faturamento_ciafal'
+    | 'envio_tarugos_sucata'
   numero_nf: string
   serie_nf: string
   fornecedor_codigo: string

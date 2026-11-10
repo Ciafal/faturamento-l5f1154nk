@@ -11,6 +11,7 @@ import Login from './pages/Login'
 import MenuProcessos from './pages/MenuProcessos'
 import EdiSubcontratacaoForm from './pages/EdiSubcontratacaoForm'
 import FaturamentoCiafalForm from './pages/FaturamentoCiafalForm'
+import EnvioTarugosSucataForm from './pages/EnvioTarugosSucataForm'
 import HistoricoProcessamentos from './pages/HistoricoProcessamentos'
 import AguardandoEspecificacao from './pages/AguardandoEspecificacao'
 import NotFound from './pages/NotFound'
@@ -74,8 +75,8 @@ const App = () => (
               element={<FaturamentoCiafalForm />}
             />
             <Route
-              path="/processos/saidas/remessa-subcontratacao"
-              element={<AguardandoEspecificacao />}
+              path="/processos/saidas/envio-tarugos-sucata"
+              element={<EnvioTarugosSucataForm />}
             />
             <Route path="/processos/saidas/venda-sucatas" element={<AguardandoEspecificacao />} />
             <Route

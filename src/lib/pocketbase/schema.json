@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-10T21:56:41.926Z",
+  "generatedAt": "2026-11-10T22:19:34.610Z",
   "collections": [
     {
       "name": "users",
@@ -80,7 +80,12 @@
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["produto_acabado", "sucata_carepa_argola", "faturamento_ciafal"]
+          "selectValues": [
+            "produto_acabado",
+            "sucata_carepa_argola",
+            "faturamento_ciafal",
+            "envio_tarugos_sucata"
+          ]
         },
         {
           "name": "numero_nf",
