@@ -77,6 +77,22 @@ export function loteInconsistente(lote: LoteFaturamento): boolean {
   return haDivergenciaRfid(lote) || tom === 'amarelo' || tom === 'vermelho'
 }
 
+/** Fator de verificação de excesso de peso (SAPMZSD076): 1,30 sobre a quantidade do item. */
+export const FATOR_EXCESSO_PESO = 1.3
+
+/**
+ * Verificação de EXCESSO DE PESO com fator 1,30 sobre a quantidade do item.
+ * ATENÇÃO: isto é uma checagem pontual de conferência do lote — NÃO é uma
+ * tolerância geral de aprovação do faturamento.
+ * Sem a integração MCHB/LIPS real, `quantidadeItem` vem dos dados de demonstração.
+ */
+export function temExcessoPeso(pesoColetado: number, quantidadeItem: number | null): boolean {
+  if (quantidadeItem === null || !Number.isFinite(quantidadeItem) || quantidadeItem <= 0) {
+    return false
+  }
+  return pesoColetado > quantidadeItem * FATOR_EXCESSO_PESO
+}
+
 export const CLASSES_TONALIDADE: Record<ToneStatusLote, string> = {
   verde: 'bg-emerald-100 text-emerald-800 border-emerald-200',
   amarelo: 'bg-amber-100 text-amber-800 border-amber-200',

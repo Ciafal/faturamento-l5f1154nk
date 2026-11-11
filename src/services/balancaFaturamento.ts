@@ -1,9 +1,11 @@
 // Adaptador da balança do processo Faturamento Ciafal (referências SAP: BUSCAR_PESO,
 // CAPTURA_BALANCA_IP_SAP, PESOBRUTO, CALCULAR_RESUMO — código ABAP não fornecido).
 //
-// A comunicação com a balança deve ocorrer pelo backend. Enquanto essa integração não
-// existir, o adaptador NÃO devolve peso algum: responde sempre com falha de comunicação.
-// PROIBIDO simular peso como se fosse de equipamento real.
+// A comunicação com a balança deve ocorrer por um adaptador no BACKEND (nunca direto
+// pelo navegador). Enquanto essa integração não existir, o modo de demonstração
+// (src/services/balancaSimulada.ts) gera um peso CLARAMENTE IDENTIFICADO como
+// simulado — nunca apresentado como captura de equipamento real. Em produção, sem
+// integração homologada, o resultado é PRODUCAO_BLOQUEADA.
 
 export type ErroBalanca =
   | 'FALHA_COMUNICACAO'
@@ -11,6 +13,7 @@ export type ErroBalanca =
   | 'PESO_NAO_IDENTIFICADO'
   | 'BALANCA_INSTAVEL'
   | 'RETORNO_INCONSISTENTE'
+  | 'PRODUCAO_BLOQUEADA'
 
 export const MENSAGENS_ERRO_BALANCA: Record<ErroBalanca, string> = {
   FALHA_COMUNICACAO:
@@ -19,13 +22,19 @@ export const MENSAGENS_ERRO_BALANCA: Record<ErroBalanca, string> = {
   PESO_NAO_IDENTIFICADO: 'Peso não identificado pela balança. Verifique o veículo na plataforma.',
   BALANCA_INSTAVEL: 'Balança instável. Aguarde a estabilização do peso e tente novamente.',
   RETORNO_INCONSISTENTE: 'Retorno inconsistente da balança. A leitura foi descartada.',
+  PRODUCAO_BLOQUEADA:
+    'A captura real da balança (CAPTURA_BALANCA_IP_SAP) permanece bloqueada até a homologação da integração.',
 }
+
+export type ModoBalanca = 'simulado' | 'real'
 
 export interface LeituraBalanca {
   /** Toneladas */
   pesoBrutoT: number
   /** ISO 8601 */
   lidoEm: string
+  /** Origem da leitura — sempre 'simulado' enquanto não houver integração homologada. */
+  modo: ModoBalanca
 }
 
 export type ResultadoLeituraBalanca =
@@ -61,16 +70,19 @@ export function interpretarRetornoBalanca(bruto: unknown): ResultadoLeituraBalan
       if (!Number.isFinite(peso) || peso <= 0 || typeof r.lido_em !== 'string') {
         return falha('RETORNO_INCONSISTENTE')
       }
-      return { ok: true, leitura: { pesoBrutoT: peso, lidoEm: r.lido_em } }
+      return { ok: true, leitura: { pesoBrutoT: peso, lidoEm: r.lido_em, modo: 'real' } }
     }
     default:
       return falha('RETORNO_INCONSISTENTE')
   }
 }
 
-/** Adaptador atual: sem integração disponível → falha de comunicação. Nenhum peso é gerado. */
+/**
+ * Adaptador de produção: bloqueado até a homologação da integração real da balança
+ * (CAPTURA_BALANCA_IP_SAP, no backend). Nenhum peso é gerado aqui.
+ */
 export const adaptadorBalancaFaturamento: AdaptadorBalanca = {
   async lerPesoBruto() {
-    return falha('FALHA_COMUNICACAO')
+    return falha('PRODUCAO_BLOQUEADA')
   },
 }
