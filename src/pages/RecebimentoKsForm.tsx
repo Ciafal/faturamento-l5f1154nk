@@ -7,6 +7,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
 import { Scale, RefreshCw, Search, Lock, Loader2, ArrowLeft, Play } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 import { useAuth } from '@/context/AuthContext'
@@ -42,6 +43,7 @@ const RecebimentoKsForm: React.FC = () => {
   const [dialogExecutarAberto, setDialogExecutarAberto] = useState(false)
   const [lendoBalanca, setLendoBalanca] = useState(false)
   const [envioCarregado, setEnvioCarregado] = useState<EnvioRecebimentoKs | null>(null)
+  const [observacoes, setObservacoes] = useState('')
 
   const aplicarEnvio = (envio: EnvioRecebimentoKs) => {
     setEnvioCarregado(envio)
@@ -145,6 +147,7 @@ const RecebimentoKsForm: React.FC = () => {
           modo: 'demonstracao',
           especificacao: 'regras SAP do Recebimento KS pendentes do programa ABAP',
           qtd_lotes: lotes.length,
+          observacoes: observacoes.trim(),
         },
       })
     } catch (error) {
@@ -191,6 +194,17 @@ const RecebimentoKsForm: React.FC = () => {
         isBuscandoLotes={isBuscandoLotes}
         onBuscarLotes={handleBuscarLotes}
       />
+
+      {/* Observações — texto livre mantido durante as ações da tela */}
+      <div className="flex flex-col gap-1">
+        <label className="text-[11px] font-medium text-slate-600">Observações</label>
+        <Textarea
+          value={observacoes}
+          onChange={(e) => setObservacoes(e.target.value)}
+          placeholder="Observações sobre o recebimento (livre)…"
+          className="min-h-[60px] text-xs"
+        />
+      </div>
 
       {/* Barra de ações */}
       <div className="flex flex-wrap items-center gap-2">
@@ -242,6 +256,7 @@ const RecebimentoKsForm: React.FC = () => {
             setLotes([])
             setPesos(null)
             setEnvioCarregado(null)
+            setObservacoes('')
           }}
           disabled={isBuscandoLotes || isBuscandoPeso || isExecutando}
           className="text-xs gap-1.5 border-slate-300 ml-auto"
@@ -273,6 +288,7 @@ const RecebimentoKsForm: React.FC = () => {
         open={dialogExecutarAberto}
         onOpenChange={setDialogExecutarAberto}
         numeroEnvio={numeroEnvio}
+        observacoes={observacoes}
         placa={placa}
         pesos={
           pesos ?? {

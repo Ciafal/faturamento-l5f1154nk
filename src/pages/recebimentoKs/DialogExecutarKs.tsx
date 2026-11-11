@@ -22,6 +22,7 @@ interface DialogExecutarKsProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   numeroEnvio: string
+  observacoes?: string
   placa: string
   pesos: PesosRecebimentoKs
   qtdLotes: number
@@ -55,6 +56,7 @@ const DialogExecutarKs: React.FC<DialogExecutarKsProps> = ({
   open,
   onOpenChange,
   numeroEnvio,
+  observacoes,
   placa,
   pesos,
   qtdLotes,
@@ -95,9 +97,12 @@ const DialogExecutarKs: React.FC<DialogExecutarKsProps> = ({
     setEtapas([...nova])
     setBloqueadoFinal(true)
     setEmAndamento(false)
+    const obsFormatada = observacoes?.trim()
+      ? ` Observações registradas: ${observacoes.trim()}.`
+      : ''
     onRegistrarHistorico(
       'pendente',
-      `Execução (demo) do envio ${numeroEnvio}: etapas de conferência e pesagem simuladas; lançamento no SAP NÃO confirmado (especificação ABAP pendente). Nenhum lançamento real executado.`,
+      `Execução (demo) do envio ${numeroEnvio}: etapas de conferência e pesagem simuladas; lançamento no SAP NÃO confirmado (especificação ABAP pendente). Nenhum lançamento real executado.${obsFormatada}`,
     )
   }
 
@@ -179,6 +184,14 @@ const DialogExecutarKs: React.FC<DialogExecutarKsProps> = ({
               {formatarPercentualKs(pesos.diferencaPesoPct)}
             </p>
           </div>
+          {observacoes && observacoes.trim().length > 0 && (
+            <div className="col-span-2">
+              <p className="text-[10px] text-slate-500 uppercase">Observações</p>
+              <p className="font-mono font-semibold whitespace-pre-wrap break-words">
+                {observacoes.trim()}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Fluxo em etapas */}
