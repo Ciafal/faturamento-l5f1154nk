@@ -98,6 +98,7 @@ const App = () => (
               path="/processos/saidas/faturamento-servicos"
               element={<AguardandoEspecificacao />}
             />
+            <Route path="/processos/saidas/amostra-gratis" element={<AguardandoEspecificacao />} />
 
             {/* Histórico Geral de Processamentos */}
             <Route path="/historico" element={<HistoricoProcessamentos />} />

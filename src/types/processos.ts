@@ -150,7 +150,7 @@ export const PROCESSOS_SAIDAS: ProcessItem[] = [
     id: 'saida-transferencia-filiais',
     route: '/processos/saidas/transferencia-filiais',
     codigo: 'SAI-05',
-    titulo: 'Remessa de Transferência entre Centros e Armazéns',
+    titulo: 'Transferência para Armazenagem Ferradura',
     tipo: 'saida',
     descricao:
       'Geração de NF de transferência entre centros Ciafal (0100 -> 0200/0300) com destaque tributário e controle de frete.',
@@ -174,7 +174,7 @@ export const PROCESSOS_SAIDAS: ProcessItem[] = [
     id: 'saida-remessa-conserto-demonstracao',
     route: '/processos/saidas/remessa-conserto',
     codigo: 'SAI-07',
-    titulo: 'Remessa para Conserto, Feiras e Demonstração',
+    titulo: 'Remessa para Conserto',
     tipo: 'saida',
     descricao:
       'Operações não comerciais com prazo de retorno fiscal, controle patrimonial e emissão de guias de acompanhamento.',
@@ -193,6 +193,18 @@ export const PROCESSOS_SAIDAS: ProcessItem[] = [
     statusImplementacao: 'aguardando_especificacao',
     categoriaSap: 'S7',
     iconeNome: 'BadgePercent',
+  },
+  {
+    id: 'saida-amostra-gratis',
+    route: '/processos/saidas/amostra-gratis',
+    codigo: 'SAI-09',
+    titulo: 'Amostra Grátis para Clientes',
+    tipo: 'saida',
+    descricao:
+      'Remessa gratuita de amostras para clientes, com controle fiscal da saída sem fato gerador de ICMS/IPI e prazo de avaliação.',
+    statusImplementacao: 'aguardando_especificacao',
+    categoriaSap: 'S8',
+    iconeNome: 'Gift',
   },
 ]
 
