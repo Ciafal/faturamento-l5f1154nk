@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-10T22:19:34.610Z",
+  "generatedAt": "2026-11-11T11:56:27.064Z",
   "collections": [
     {
       "name": "users",
@@ -84,7 +84,8 @@
             "produto_acabado",
             "sucata_carepa_argola",
             "faturamento_ciafal",
-            "envio_tarugos_sucata"
+            "envio_tarugos_sucata",
+            "envio_ks"
           ]
         },
         {

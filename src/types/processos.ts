@@ -123,21 +123,33 @@ export const PROCESSOS_SAIDAS: ProcessItem[] = [
     iconeNome: 'Send',
   },
   {
+    id: 'saida-envio-ks',
+    route: '/processos/saidas/envio-ks',
+    codigo: 'SAI-03',
+    titulo: 'Envio para KS',
+    tipo: 'saida',
+    descricao:
+      'Envio de material para a KS — consulta de NF em modo demonstração, aguardando especificação funcional.',
+    statusImplementacao: 'funcional_demonstracao',
+    categoriaSap: 'S3',
+    iconeNome: 'PackageOpen',
+  },
+  {
     id: 'saida-venda-sucatas-subprodutos',
     route: '/processos/saidas/venda-sucatas',
-    codigo: 'SAI-03',
+    codigo: 'SAI-04',
     titulo: 'Faturamento de Venda de Sucatas e Subprodutos',
-    tipo: 'saida',
     descricao:
       'Faturamento de lotes de carepa, retalhos e argolas com pesagem integrada e regras de diferimento de ICMS.',
     statusImplementacao: 'aguardando_especificacao',
     categoriaSap: 'S3',
     iconeNome: 'Boxes',
+    tipo: 'saida',
   },
   {
     id: 'saida-transferencia-filiais',
     route: '/processos/saidas/transferencia-filiais',
-    codigo: 'SAI-04',
+    codigo: 'SAI-05',
     titulo: 'Remessa de Transferência entre Centros e Armazéns',
     tipo: 'saida',
     descricao:
@@ -149,7 +161,7 @@ export const PROCESSOS_SAIDAS: ProcessItem[] = [
   {
     id: 'saida-devolucao-fornecedor',
     route: '/processos/saidas/devolucao-fornecedor',
-    codigo: 'SAI-05',
+    codigo: 'SAI-06',
     titulo: 'Saída por Devolução de Mercadorias / Insumos a Fornecedores',
     tipo: 'saida',
     descricao:
@@ -161,7 +173,7 @@ export const PROCESSOS_SAIDAS: ProcessItem[] = [
   {
     id: 'saida-remessa-conserto-demonstracao',
     route: '/processos/saidas/remessa-conserto',
-    codigo: 'SAI-06',
+    codigo: 'SAI-07',
     titulo: 'Remessa para Conserto, Feiras e Demonstração',
     tipo: 'saida',
     descricao:
@@ -173,7 +185,7 @@ export const PROCESSOS_SAIDAS: ProcessItem[] = [
   {
     id: 'saida-faturamento-servicos',
     route: '/processos/saidas/faturamento-servicos',
-    codigo: 'SAI-07',
+    codigo: 'SAI-08',
     titulo: 'Faturamento de Prestação de Serviços Industriais e Locações',
     tipo: 'saida',
     descricao:

@@ -10,6 +10,7 @@ export type ProcessTypeFiltro =
   | 'sucata_carepa_argola'
   | 'faturamento_ciafal'
   | 'envio_tarugos_sucata'
+  | 'envio_ks'
 
 export async function listarNotasFiscais(
   processType?: ProcessTypeFiltro,
