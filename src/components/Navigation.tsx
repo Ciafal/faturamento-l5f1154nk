@@ -10,26 +10,11 @@ import {
   LogOut,
   User,
   Shield,
-  FileText,
-  History,
-  Home,
-  ArrowDownToLine,
-  ArrowUpFromLine,
-  AlertTriangle,
   Menu,
   X,
   PackageCheck,
-  Recycle,
-  Truck,
-  ArrowLeftRight,
-  RotateCcw,
-  ShoppingBag,
-  Send,
-  Boxes,
-  Share2,
-  Undo2,
-  Wrench,
-  BadgePercent,
+  ArrowDownToLine,
+  ArrowUpFromLine,
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -41,23 +26,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-
-const ICON_MAP: Record<string, React.ElementType> = {
-  PackageCheck,
-  Recycle,
-  Truck,
-  ArrowLeftRight,
-  Building2,
-  RotateCcw,
-  FileText,
-  ShoppingBag,
-  Send,
-  Boxes,
-  Share2,
-  Undo2,
-  Wrench,
-  BadgePercent,
-}
 
 interface SidebarProps {
   collapsed: boolean
@@ -77,11 +45,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [saidasOpen, setSaidasOpen] = useState(true)
 
   const isActive = (path: string) => location.pathname === path
-
-  const renderIcon = (name: string) => {
-    const IconComponent = ICON_MAP[name] || FileText
-    return <IconComponent className="h-4 w-4 shrink-0" />
-  }
 
   return (
     <>
@@ -106,9 +69,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               H
             </div>
             {!collapsed && (
-              <div className="flex flex-col truncate leading-tight">
-                <span className="text-base font-bold tracking-wide">HUB CIAFAL</span>
-                <span className="text-xs text-blue-200">Módulo de Faturamento</span>
+              <div className="flex flex-col leading-tight">
+                <span className="text-lg font-bold tracking-wide">Faturamento</span>
               </div>
             )}
           </Link>
@@ -138,26 +100,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <Link
               to="/"
               onClick={onCloseMobile}
-              className={`flex items-center gap-3 rounded-md px-3 py-2 transition-colors ${
+              title="Início do Módulo"
+              className={`flex items-center rounded-md px-3 py-2 transition-colors ${
                 isActive('/')
                   ? 'bg-blue-800 text-white font-medium shadow-sm'
                   : 'text-blue-100 hover:bg-blue-800/50 hover:text-white'
-              }`}
+              } ${collapsed ? 'justify-center' : 'pl-9'}`}
             >
-              <Home className="h-4 w-4 shrink-0" />
               {!collapsed && <span>Início do Módulo</span>}
             </Link>
 
             <Link
               to="/historico"
               onClick={onCloseMobile}
-              className={`flex items-center gap-3 rounded-md px-3 py-2 transition-colors ${
+              title="Histórico de Processamentos"
+              className={`flex items-center rounded-md px-3 py-2 transition-colors ${
                 isActive('/historico')
                   ? 'bg-blue-800 text-white font-medium shadow-sm'
                   : 'text-blue-100 hover:bg-blue-800/50 hover:text-white'
-              }`}
+              } ${collapsed ? 'justify-center' : 'pl-9'}`}
             >
-              <History className="h-4 w-4 shrink-0" />
               {!collapsed && <span>Histórico de Processamentos</span>}
             </Link>
           </div>
@@ -171,8 +133,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onClick={() => !collapsed && setEntradasOpen(!entradasOpen)}
             >
               <div className="flex items-center gap-2">
-                <ArrowDownToLine className="h-3.5 w-3.5" />
-                {!collapsed && <span>Entradas (7 Processos)</span>}
+                <ArrowDownToLine className="h-3.5 w-3.5 shrink-0" />
+                {!collapsed && <span>Entradas</span>}
               </div>
               {!collapsed && (
                 <ChevronDown
@@ -192,20 +154,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       key={proc.id}
                       to={proc.route}
                       onClick={onCloseMobile}
-                      title={collapsed ? proc.titulo : undefined}
-                      className={`group flex items-center justify-between rounded-md px-3 py-2 text-xs transition-colors ${
+                      title={proc.titulo}
+                      className={`group flex items-center justify-between rounded-md py-2 pr-3 text-xs transition-colors ${
                         active
                           ? 'bg-blue-800 text-white font-medium shadow-sm'
                           : 'text-blue-100 hover:bg-blue-800/50 hover:text-white'
-                      }`}
+                      } ${collapsed ? 'px-3' : 'pl-9'}`}
                     >
-                      <div className="flex items-center gap-2.5 truncate">
-                        {renderIcon(proc.iconeNome)}
-                        {!collapsed && <span className="truncate">{proc.titulo}</span>}
-                      </div>
+                      {!collapsed && <span className="leading-snug">{proc.titulo}</span>}
 
                       {!collapsed && proc.statusImplementacao === 'funcional_demonstracao' && (
-                        <span className="shrink-0 rounded bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-200">
+                        <span className="ml-2 shrink-0 rounded bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-200">
                           Demo
                         </span>
                       )}
@@ -216,7 +175,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             )}
           </div>
 
-          {/* Seção Saídas (7 Processos) */}
+          {/* Seção Saídas */}
           <div className="space-y-1">
             <div
               className={`flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-blue-200 px-3 py-1 cursor-pointer select-none hover:text-white ${
@@ -225,8 +184,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onClick={() => !collapsed && setSaidasOpen(!saidasOpen)}
             >
               <div className="flex items-center gap-2">
-                <ArrowUpFromLine className="h-3.5 w-3.5" />
-                {!collapsed && <span>Saídas (7 Processos)</span>}
+                <ArrowUpFromLine className="h-3.5 w-3.5 shrink-0" />
+                {!collapsed && <span>Saídas</span>}
               </div>
               {!collapsed && (
                 <ChevronDown
@@ -246,17 +205,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       key={proc.id}
                       to={proc.route}
                       onClick={onCloseMobile}
-                      title={collapsed ? proc.titulo : undefined}
-                      className={`group flex items-center justify-between rounded-md px-3 py-2 text-xs transition-colors ${
+                      title={proc.titulo}
+                      className={`group flex items-center justify-between rounded-md py-2 pr-3 text-xs transition-colors ${
                         active
                           ? 'bg-blue-800 text-white font-medium shadow-sm'
                           : 'text-blue-100 hover:bg-blue-800/50 hover:text-white'
-                      }`}
+                      } ${collapsed ? 'px-3' : 'pl-9'}`}
                     >
-                      <div className="flex items-center gap-2.5 truncate">
-                        {renderIcon(proc.iconeNome)}
-                        {!collapsed && <span className="truncate">{proc.titulo}</span>}
-                      </div>
+                      {!collapsed && <span className="leading-snug">{proc.titulo}</span>}
                     </Link>
                   )
                 })}
