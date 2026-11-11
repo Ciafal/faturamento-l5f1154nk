@@ -15,6 +15,8 @@ import EnvioTarugosSucataForm from './pages/EnvioTarugosSucataForm'
 import EnvioParaKsForm from './pages/EnvioParaKsForm'
 import HistoricoProcessamentos from './pages/HistoricoProcessamentos'
 import AguardandoEspecificacao from './pages/AguardandoEspecificacao'
+import RecebimentoKsForm from './pages/RecebimentoKsForm'
+import AmostraGratisForm from './pages/AmostraGratisForm'
 import ParametrizacaoCfops from './pages/ParametrizacaoCfops'
 import NotFound from './pages/NotFound'
 
@@ -70,6 +72,8 @@ const App = () => (
               path="/processos/entradas/servicos-diversos"
               element={<AguardandoEspecificacao />}
             />
+            {/* Recebimento KS (ENT-08) — conferência de lotes e pesagem, modo demonstração */}
+            <Route path="/processos/entradas/recebimento-ks" element={<RecebimentoKsForm />} />
 
             {/* Os 7 processos de Saídas (Aguardando Especificação) */}
             <Route
@@ -98,7 +102,7 @@ const App = () => (
               path="/processos/saidas/faturamento-servicos"
               element={<AguardandoEspecificacao />}
             />
-            <Route path="/processos/saidas/amostra-gratis" element={<AguardandoEspecificacao />} />
+            <Route path="/processos/saidas/amostra-gratis" element={<AmostraGratisForm />} />
 
             {/* Histórico Geral de Processamentos */}
             <Route path="/historico" element={<HistoricoProcessamentos />} />

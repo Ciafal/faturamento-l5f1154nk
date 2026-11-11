@@ -11,6 +11,7 @@ export type ProcessTypeFiltro =
   | 'faturamento_ciafal'
   | 'envio_tarugos_sucata'
   | 'envio_ks'
+  | 'amostra_gratis'
 
 export async function listarNotasFiscais(
   processType?: ProcessTypeFiltro,

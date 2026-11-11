@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-11T17:00:53.894Z",
+  "generatedAt": "2026-11-11T19:15:08.447Z",
   "collections": [
     {
       "name": "users",
@@ -85,7 +85,8 @@
             "sucata_carepa_argola",
             "faturamento_ciafal",
             "envio_tarugos_sucata",
-            "envio_ks"
+            "envio_ks",
+            "amostra_gratis"
           ]
         },
         {
@@ -680,6 +681,97 @@
         }
       ],
       "indexes": ["CREATE UNIQUE INDEX idx_param_cfop_valor ON parametrizacao_cfop (cfop)"]
+    },
+    {
+      "name": "recebimentos_ks_demo",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "process_type",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": ["recebimento_ks"]
+        },
+        {
+          "name": "numero_envio",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "placa_veiculo",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_processamento",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "hora_processamento",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "status_picking",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "peso_bruto",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "tara",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "lotes_json",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "is_simulated",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_receb_ks_envio ON recebimentos_ks_demo (process_type, numero_envio)"
+      ]
     }
   ]
 }

@@ -47,6 +47,7 @@ export interface NotaFiscalRecord {
     | 'sucata_carepa_argola'
     | 'faturamento_ciafal'
     | 'envio_tarugos_sucata'
+    | 'amostra_gratis'
   numero_nf: string
   serie_nf: string
   fornecedor_codigo: string

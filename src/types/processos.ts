@@ -95,6 +95,18 @@ export const PROCESSOS_ENTRADAS: ProcessItem[] = [
     categoriaSap: 'E6',
     iconeNome: 'FileText',
   },
+  {
+    id: 'entrada-recebimento-ks',
+    route: '/processos/entradas/recebimento-ks',
+    codigo: 'ENT-08',
+    titulo: 'Recebimento KS',
+    tipo: 'entrada',
+    descricao:
+      'Conferência de Lotes e Pesagem — KS: batimento de blocos/lotes coletados x RFID e pesagem na balança, em modo demonstração.',
+    statusImplementacao: 'funcional_demonstracao',
+    categoriaSap: 'E7',
+    iconeNome: 'PackageCheck',
+  },
 ]
 
 export const PROCESSOS_SAIDAS: ProcessItem[] = [
@@ -202,7 +214,7 @@ export const PROCESSOS_SAIDAS: ProcessItem[] = [
     tipo: 'saida',
     descricao:
       'Remessa gratuita de amostras para clientes, com controle fiscal da saída sem fato gerador de ICMS/IPI e prazo de avaliação.',
-    statusImplementacao: 'aguardando_especificacao',
+    statusImplementacao: 'funcional_demonstracao',
     categoriaSap: 'S8',
     iconeNome: 'Gift',
   },
