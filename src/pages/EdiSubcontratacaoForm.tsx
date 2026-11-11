@@ -7,6 +7,7 @@ import {
   registrarHistoricoProcessamento,
 } from '@/services/faturamento'
 import { SapIntegrationAdapter, type SapValidationResponse } from '@/services/sapAdapter'
+import GridRetornoSubcontratacao from './ediSubcontratacao/GridRetornoSubcontratacao'
 import type { NotaFiscalRecord } from '@/types/database'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -846,6 +847,8 @@ export default function EdiSubcontratacaoForm({ processType }: EdiSubcontratacao
           </CardContent>
         </Card>
       )}
+
+      {isProdutoAcabado && <GridRetornoSubcontratacao />}
     </div>
   )
 }
