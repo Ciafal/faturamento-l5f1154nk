@@ -15,6 +15,7 @@ import {
   PackageCheck,
   ArrowDownToLine,
   ArrowUpFromLine,
+  Settings2,
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -218,6 +219,35 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 })}
               </div>
             )}
+          </div>
+
+          {/* Seção Parametrização (administrativo) */}
+          <div className="space-y-1">
+            <div
+              className={`flex items-center text-xs font-semibold uppercase tracking-wider text-blue-200 px-3 py-1 select-none ${
+                collapsed ? 'justify-center' : ''
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Settings2 className="h-3.5 w-3.5 shrink-0" />
+                {!collapsed && <span>Parametrização</span>}
+              </div>
+            </div>
+
+            <div className="space-y-1 pt-1">
+              <Link
+                to="/parametrizacao/cfops"
+                onClick={onCloseMobile}
+                title="Parametrização de CFOPs"
+                className={`flex items-center rounded-md py-2 pr-3 text-xs transition-colors ${
+                  isActive('/parametrizacao/cfops')
+                    ? 'bg-blue-800 text-white font-medium shadow-sm'
+                    : 'text-blue-100 hover:bg-blue-800/50 hover:text-white'
+                } ${collapsed ? 'px-3' : 'pl-9'}`}
+              >
+                {!collapsed && <span className="leading-snug">Parametrização de CFOPs</span>}
+              </Link>
+            </div>
           </div>
         </div>
 

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-11T13:47:35.829Z",
+  "generatedAt": "2026-11-11T15:08:24.245Z",
   "collections": [
     {
       "name": "users",
@@ -620,6 +620,66 @@
       "indexes": [
         "CREATE UNIQUE INDEX idx_param_cfop_retorno_chave ON parametrizacao_cfop_retorno (numero_nf, serie_nf, item_nf, material_codigo, lote)"
       ]
+    },
+    {
+      "name": "parametrizacao_cfop",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "cfop",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "descricao",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "direcao",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": ["entrada", "saida"]
+        },
+        {
+          "name": "origem",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": ["sap_sync", "manual"]
+        },
+        {
+          "name": "ativo",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": ["CREATE UNIQUE INDEX idx_param_cfop_valor ON parametrizacao_cfop (cfop)"]
     }
   ]
 }

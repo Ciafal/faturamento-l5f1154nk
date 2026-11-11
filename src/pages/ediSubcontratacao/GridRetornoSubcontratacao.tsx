@@ -2,6 +2,7 @@ import pb from '@/lib/pocketbase/client'
 import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { toast } from '@/hooks/use-toast'
+import { listarOpcoesCfop, CFOPS_FALLBACK, type OpcaoComboCfop } from '@/services/cfops'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -10,7 +11,6 @@ import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { RefreshCw, Save, Link2, Link2Off, ShieldCheck, Info, AlertTriangle } from 'lucide-react'
 import {
-  CFOPS_RETORNO_SUBCONTRATACAO,
   LABEL_STATUS_CORRELACAO,
   listarLinhasGridRetorno,
   salvarParametrizacaoCfop,
@@ -165,6 +165,7 @@ export default function GridRetornoSubcontratacao() {
   const [dialogVinculo, setDialogVinculo] = useState<LinhaGridRetorno | null>(null)
   const [pedidoDialog, setPedidoDialog] = useState('')
   const [itemPedidoDialog, setItemPedidoDialog] = useState('')
+  const [opcoesCfop, setOpcoesCfop] = useState<OpcaoComboCfop[]>([])
 
   async function carregarGrid() {
     setCarregando(true)
@@ -175,6 +176,11 @@ export default function GridRetornoSubcontratacao() {
 
   useEffect(() => {
     carregarGrid()
+    // Combo de CFOP vem da parametrização dinâmica no banco (coleção
+    // parametrizacao_cfop); a lista hardcoded entra só como fallback.
+    listarOpcoesCfop('todas')
+      .then(setOpcoesCfop)
+      .catch(() => setOpcoesCfop(CFOPS_FALLBACK.map((c) => ({ ...c }))))
   }, [])
 
   /** Dados simulados + parametrizações persistidas: aplica filtros e ordenação sobre a base completa. */
@@ -662,7 +668,7 @@ export default function GridRetornoSubcontratacao() {
                           }
                           className="h-7 rounded border border-[#004c97]/40 bg-blue-50 text-[11px] font-mono font-semibold text-[#004c97] px-1.5 cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#004c97]"
                         >
-                          {CFOPS_RETORNO_SUBCONTRATACAO.map((c) => (
+                          {opcoesCfop.map((c) => (
                             <option key={c.valor} value={c.valor}>
                               {c.valor} — {c.descricao}
                             </option>

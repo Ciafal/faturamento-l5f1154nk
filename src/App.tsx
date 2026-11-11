@@ -15,6 +15,7 @@ import EnvioTarugosSucataForm from './pages/EnvioTarugosSucataForm'
 import EnvioParaKsForm from './pages/EnvioParaKsForm'
 import HistoricoProcessamentos from './pages/HistoricoProcessamentos'
 import AguardandoEspecificacao from './pages/AguardandoEspecificacao'
+import ParametrizacaoCfops from './pages/ParametrizacaoCfops'
 import NotFound from './pages/NotFound'
 
 // ONLY IMPORT AND RENDER WORKING PAGES, NEVER ADD PLACEHOLDER COMPONENTS OR PAGES IN THIS FILE
@@ -100,6 +101,9 @@ const App = () => (
 
             {/* Histórico Geral de Processamentos */}
             <Route path="/historico" element={<HistoricoProcessamentos />} />
+
+            {/* Parametrização administrativa */}
+            <Route path="/parametrizacao/cfops" element={<ParametrizacaoCfops />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />
