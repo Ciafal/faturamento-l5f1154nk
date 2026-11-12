@@ -1,162 +1,84 @@
-// Tela ENT-08 "Recebimento KS" — Conferência de Lotes e Pesagem (KS).
-// Estrutura espelha a tela SAI-01 Faturamento Ciafal (painel superior +
-// barra de ações + tabela de conferência), com as diferenças pedidas:
-// campo principal "Nº Envio", coluna "Nº Bloco", coluna "Letra" e
-// processamento BLOQUEADO (regras SAP pendentes do ABAP).
+// Tela ENT-08 "Recebimento KS" — painel em DUAS ABAS:
+//   1. "Consulta de Envios" (aba padrão): indicadores, filtros de período,
+//      pesquisa e relação de envios (cards).
+//   2. "Conferência e Recebimento": a tela original de Recebimento KS,
+//      mantida como estava (Nº Envio, Placa, data/hora, status de picking,
+//      pesos, Observações, Buscar Lotes/Buscar Peso/Executar/Limpar e grid
+//      de 12 colunas).
+// Selecionar um envio na Aba 1 abre a Aba 2 automaticamente com o Nº Envio
+// preenchido e os dados carregados. Envios Recebidos abrem em MODO CONSULTA.
+// Massa de dados de DEMONSTRAÇÃO (recebimentos_ks_demo, migrations 0010/0011/
+// 0013) — processamento SAP real bloqueado (regras ABAP pendentes).
 
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { Scale, RefreshCw, Search, Lock, Loader2, ArrowLeft, Play } from 'lucide-react'
-import { toast } from '@/hooks/use-toast'
-import { useAuth } from '@/context/AuthContext'
-import {
-  listarHistoricoProcessamentos,
-  registrarHistoricoProcessamento,
-} from '@/services/faturamento'
-import { PainelSuperiorKs } from './recebimentoKs/PainelSuperiorKs'
-import TabelaLotesKs from './recebimentoKs/TabelaLotesKs'
-import DialogExecutarKs from './recebimentoKs/DialogExecutarKs'
-import {
-  buscarEnvioKsPorNumero,
-  MENSAGEM_ENVIO_NAO_ENCONTRADO,
-  type EnvioRecebimentoKs,
-} from '@/services/recebimentoKs'
-import { calcularPesosKs, eInconsistenteKs } from '@/lib/recebimentoKs/calculos'
-import type { LoteRecebimentoKs, PesosRecebimentoKs } from '@/types/recebimentoKs'
+import { ArrowLeft, ListChecks, ClipboardCheck } from 'lucide-react'
+import AbaConsultaEnvios from './recebimentoKs/AbaConsultaEnvios'
+import AbaConferenciaKs from './recebimentoKs/AbaConferenciaKs'
+import pb from '@/lib/pocketbase/client'
+import { COLECAO_RECEBIMENTOS_KS, type EnvioRecebimentoKs } from '@/services/recebimentoKs'
+import type { LoteRecebimentoKs } from '@/types/recebimentoKs'
+
+function paraEnvio(record: Record<string, unknown>): EnvioRecebimentoKs {
+  return {
+    id: String(record.id),
+    numero_envio: String(record.numero_envio ?? ''),
+    placa_veiculo: String(record.placa_veiculo ?? ''),
+    data_processamento: String(record.data_processamento ?? ''),
+    hora_processamento: String(record.hora_processamento ?? ''),
+    status_picking: String(record.status_picking ?? ''),
+    peso_bruto: Number(record.peso_bruto ?? 0),
+    tara: Number(record.tara ?? 0),
+    lotes: (record.lotes_json as LoteRecebimentoKs[] | undefined) ?? [],
+    is_simulated: Boolean(record.is_simulated),
+    status: String(record.status ?? ''),
+    origem: String(record.origem ?? ''),
+    destino: String(record.destino ?? ''),
+    data_programada: String(record.data_programada ?? ''),
+    data_saida: String(record.data_saida ?? ''),
+    data_recebimento: String(record.data_recebimento ?? ''),
+    peso_previsto: Number(record.peso_previsto ?? 0),
+    peso_enviado: Number(record.peso_enviado ?? 0),
+    peso_recebido: Number(record.peso_recebido ?? 0),
+    situacao_adicional: String(record.situacao_adicional ?? ''),
+  }
+}
 
 const RecebimentoKsForm: React.FC = () => {
   const navigate = useNavigate()
-  const { user, empresaSelecionada } = useAuth()
 
-  const [numeroEnvio, setNumeroEnvio] = useState('')
-  const [placa, setPlaca] = useState('')
-  const [dataProcessamento, setDataProcessamento] = useState('')
-  const [horaProcessamento, setHoraProcessamento] = useState('')
-  const [statusPicking, setStatusPicking] = useState('')
-  const [lotes, setLotes] = useState<LoteRecebimentoKs[]>([])
-  const [pesos, setPesos] = useState<PesosRecebimentoKs | null>(null)
-  const [isBuscandoLotes, setIsBuscandoLotes] = useState(false)
-  const [isBuscandoPeso, setIsBuscandoPeso] = useState(false)
-  const [isExecutando, setIsExecutando] = useState(false)
-  const [dialogExecutarAberto, setDialogExecutarAberto] = useState(false)
-  const [lendoBalanca, setLendoBalanca] = useState(false)
-  const [envioCarregado, setEnvioCarregado] = useState<EnvioRecebimentoKs | null>(null)
-  const [observacoes, setObservacoes] = useState('')
+  const [aba, setAba] = useState('consulta')
+  const [envios, setEnvios] = useState<EnvioRecebimentoKs[]>([])
+  const [carregando, setCarregando] = useState(true)
+  const [envioSelecionado, setEnvioSelecionado] = useState<EnvioRecebimentoKs | null>(null)
+  const [modoConsulta, setModoConsulta] = useState(false)
 
-  const aplicarEnvio = (envio: EnvioRecebimentoKs) => {
-    setEnvioCarregado(envio)
-    setPlaca(envio.placa_veiculo)
-    setDataProcessamento(envio.data_processamento)
-    setHoraProcessamento(envio.hora_processamento)
-    setStatusPicking(envio.status_picking)
-    setLotes(envio.lotes)
-    setPesos(calcularPesosKs(envio.peso_bruto, envio.tara, envio.lotes))
-    setLendoBalanca(false)
-  }
-
-  const handleBuscarLotes = async () => {
-    if (!numeroEnvio.trim()) {
-      toast({
-        title: 'Nº Envio obrigatório',
-        description: 'Informe o número do envio para buscar os lotes.',
-        variant: 'destructive',
-      })
-      return
-    }
-    setIsBuscandoLotes(true)
+  const carregarEnvios = useCallback(async () => {
+    setCarregando(true)
     try {
-      const envio = await buscarEnvioKsPorNumero(numeroEnvio)
-      if (!envio) {
-        toast({
-          title: 'Envio não encontrado',
-          description: MENSAGEM_ENVIO_NAO_ENCONTRADO,
-          variant: 'destructive',
-        })
-        return
-      }
-      aplicarEnvio(envio)
-      toast({
-        title: 'Lotes carregados',
-        description: `${envio.lotes.length} lote(s) do envio ${envio.numero_envio} carregado(s) para conferência.`,
+      const records = await pb.collection(COLECAO_RECEBIMENTOS_KS).getFullList({
+        sort: '-numero_envio',
       })
+      setEnvios(records.map((r) => paraEnvio(r as unknown as Record<string, unknown>)))
     } catch (error) {
-      toast({
-        title: 'Erro ao buscar lotes',
-        description: error instanceof Error ? error.message : String(error),
-        variant: 'destructive',
-      })
+      console.warn('Falha ao carregar envios KS (modo demonstração):', error)
+      setEnvios([])
     } finally {
-      setIsBuscandoLotes(false)
+      setCarregando(false)
     }
-  }
+  }, [])
 
-  const handleBuscarPeso = async () => {
-    if (!envioCarregado) {
-      toast({
-        title: 'Nenhum envio carregado',
-        description: 'Clique em "Buscar Lotes" antes de buscar o peso da balança.',
-        variant: 'destructive',
-      })
-      return
-    }
-    setIsBuscandoPeso(true)
-    setLendoBalanca(true)
-    try {
-      // Simulação de balança claramente identificada (peso bruto/tara demo).
-      await new Promise((r) => setTimeout(r, 800))
-      aplicarEnvio(envioCarregado)
-      toast({
-        title: 'Peso lido (simulação de balança)',
-        description: `Bruto ${envioCarregado.peso_bruto.toFixed(3)} t / Tara ${envioCarregado.tara.toFixed(3)} t — indicadores recalculados.`,
-      })
-    } finally {
-      setIsBuscandoPeso(false)
-      setLendoBalanca(false)
-    }
-  }
+  useEffect(() => {
+    carregarEnvios()
+  }, [carregarEnvios])
 
-  const handleExecutar = () => {
-    if (!envioCarregado || !pesos) {
-      toast({
-        title: 'Nenhum envio carregado',
-        description: 'Busque os lotes do envio antes de executar.',
-        variant: 'destructive',
-      })
-      return
-    }
-    setDialogExecutarAberto(true)
-  }
-
-  const handleRegistrarHistorico = async (resultado: 'pendente' | 'erro', mensagem: string) => {
-    try {
-      await registrarHistoricoProcessamento({
-        user_email: user?.email || 'anonimo@ciafal.com.br',
-        user_nome: user?.name || 'Usuário Ciafal',
-        empresa: empresaSelecionada.razaoSocial,
-        processo_id: 'entrada-recebimento-ks',
-        processo_nome: 'Recebimento KS (Conferência de Lotes e Pesagem)',
-        tipo_operacao: 'entrada',
-        numero_nf: numeroEnvio || '-',
-        serie_nf: '-',
-        resultado,
-        documento_sap: '',
-        mensagens: mensagem,
-        detalhes_json: {
-          modo: 'demonstracao',
-          especificacao: 'regras SAP do Recebimento KS pendentes do programa ABAP',
-          qtd_lotes: lotes.length,
-          observacoes: observacoes.trim(),
-        },
-      })
-    } catch (error) {
-      console.warn('Falha ao registrar histórico (modo demonstração):', error)
-    }
-  }
-
-  const qtdInconsistencias = lotes.filter(eInconsistenteKs).length
-  const podeExecutar = !!envioCarregado && !!pesos
+  const abrirEnvio = useCallback((envio: EnvioRecebimentoKs) => {
+    setEnvioSelecionado(envio)
+    setModoConsulta(envio.status === 'Recebido')
+    setAba('conferencia')
+  }, [])
 
   return (
     <div className="flex flex-col gap-3 p-4 lg:p-6">
@@ -174,7 +96,9 @@ const RecebimentoKsForm: React.FC = () => {
           </Button>
           <div>
             <h1 className="text-lg font-bold text-[#004c97] leading-tight">Recebimento KS</h1>
-            <p className="text-xs text-slate-500">Conferência de Lotes e Pesagem — KS</p>
+            <p className="text-xs text-slate-500">
+              Painel de Consulta e Acompanhamento de Envios — KS
+            </p>
           </div>
         </div>
         <span className="rounded bg-slate-100 border border-slate-200 px-2 py-1 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
@@ -182,129 +106,37 @@ const RecebimentoKsForm: React.FC = () => {
         </span>
       </div>
 
-      {/* Painel superior: dados + pesos */}
-      <PainelSuperiorKs
-        numeroEnvio={numeroEnvio}
-        onNumeroEnvioChange={setNumeroEnvio}
-        placa={placa}
-        dataProcessamento={dataProcessamento}
-        horaProcessamento={horaProcessamento}
-        statusPicking={statusPicking}
-        pesos={pesos}
-        isBuscandoLotes={isBuscandoLotes}
-        onBuscarLotes={handleBuscarLotes}
-      />
+      {/* Painel em duas abas */}
+      <Tabs value={aba} onValueChange={setAba} className="w-full">
+        <TabsList className="h-9 bg-slate-100 p-0.5 rounded-md">
+          <TabsTrigger
+            value="consulta"
+            className="text-xs gap-1.5 px-4 data-[state=active]:bg-[#004c97] data-[state=active]:text-white"
+          >
+            <ListChecks className="h-3.5 w-3.5" />
+            Consulta de Envios
+          </TabsTrigger>
+          <TabsTrigger
+            value="conferencia"
+            className="text-xs gap-1.5 px-4 data-[state=active]:bg-[#004c97] data-[state=active]:text-white"
+          >
+            <ClipboardCheck className="h-3.5 w-3.5" />
+            Conferência e Recebimento
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Observações — texto livre mantido durante as ações da tela */}
-      <div className="flex flex-col gap-1">
-        <label className="text-[11px] font-medium text-slate-600">Observações</label>
-        <Textarea
-          value={observacoes}
-          onChange={(e) => setObservacoes(e.target.value)}
-          placeholder="Observações sobre o recebimento (livre)…"
-          className="min-h-[60px] text-xs"
-        />
-      </div>
+        <TabsContent value="consulta" className="mt-3">
+          <AbaConsultaEnvios envios={envios} carregando={carregando} onAbrirEnvio={abrirEnvio} />
+        </TabsContent>
 
-      {/* Barra de ações */}
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          size="sm"
-          onClick={handleBuscarLotes}
-          disabled={isBuscandoLotes || !numeroEnvio.trim()}
-          className="bg-[#004c97] hover:bg-blue-900 text-white text-xs gap-1.5"
-        >
-          {isBuscandoLotes ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          ) : (
-            <Search className="h-3.5 w-3.5" />
-          )}
-          Buscar Lotes
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={handleBuscarPeso}
-          disabled={isBuscandoPeso || !envioCarregado}
-          className="text-xs gap-1.5 border-slate-300"
-        >
-          {isBuscandoPeso ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          ) : (
-            <Scale className="h-3.5 w-3.5" />
-          )}
-          {lendoBalanca ? 'Lendo balança…' : 'Buscar Peso'}
-        </Button>
-        <Button
-          size="sm"
-          onClick={handleExecutar}
-          disabled={!podeExecutar || isExecutando}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs gap-1.5"
-        >
-          <Play className="h-3.5 w-3.5" />
-          Executar
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => {
-            setNumeroEnvio('')
-            setPlaca('')
-            setDataProcessamento('')
-            setHoraProcessamento('')
-            setStatusPicking('')
-            setLotes([])
-            setPesos(null)
-            setEnvioCarregado(null)
-            setObservacoes('')
-          }}
-          disabled={isBuscandoLotes || isBuscandoPeso || isExecutando}
-          className="text-xs gap-1.5 border-slate-300 ml-auto"
-        >
-          <RefreshCw className="h-3.5 w-3.5" />
-          Limpar
-        </Button>
-        <span
-          className="inline-flex items-center gap-1 rounded bg-amber-50 border border-amber-200 px-2 py-1 text-[10px] font-semibold text-amber-700"
-          title="Lançamento no SAP pendente de especificação ABAP"
-        >
-          <Lock className="h-3 w-3" />
-          Processamento SAP bloqueado (ABAP pendente)
-        </span>
-      </div>
-
-      {/* Grid de conferência — ocupa a maior área */}
-      <div className="flex-1">
-        {lotes.length === 0 ? (
-          <div className="flex h-40 items-center justify-center rounded-md border border-dashed border-slate-300 bg-slate-50 text-xs text-slate-500">
-            Informe o Nº Envio e clique em "Buscar Lotes" para carregar a conferência.
-          </div>
-        ) : (
-          <TabelaLotesKs lotes={lotes} />
-        )}
-      </div>
-
-      <DialogExecutarKs
-        open={dialogExecutarAberto}
-        onOpenChange={setDialogExecutarAberto}
-        numeroEnvio={numeroEnvio}
-        observacoes={observacoes}
-        placa={placa}
-        pesos={
-          pesos ?? {
-            pesoBruto: 0,
-            tara: 0,
-            pesoColetado: 0,
-            pesoLotesRfid: 0,
-            pesoLiquidoBalanca: 0,
-            diferencaPesoT: 0,
-            diferencaPesoPct: 0,
-          }
-        }
-        qtdLotes={lotes.length}
-        qtdInconsistencias={qtdInconsistencias}
-        onRegistrarHistorico={handleRegistrarHistorico}
-      />
+        <TabsContent value="conferencia" className="mt-3">
+          <AbaConferenciaKs
+            envioSelecionado={envioSelecionado}
+            modoConsulta={modoConsulta}
+            onLimparSelecao={() => setEnvioSelecionado(null)}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

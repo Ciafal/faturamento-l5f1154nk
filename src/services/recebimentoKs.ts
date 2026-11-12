@@ -7,7 +7,15 @@ import type { LoteRecebimentoKs } from '@/types/recebimentoKs'
 export const COLECAO_RECEBIMENTOS_KS = 'recebimentos_ks_demo'
 
 export const MENSAGEM_ENVIO_NAO_ENCONTRADO =
-  'Nº Envio não encontrado nos dados de demonstração (tente 1800010001, 1800010002 ou 1800010003).'
+  'Nº Envio não encontrado nos dados de demonstração (tente 1800010001 a 1800010009).'
+
+export const STATUS_PROGRAMADO = 'Programado'
+export const STATUS_EM_TRANSITO = 'Em Trânsito'
+export const STATUS_RECEBIDO = 'Recebido'
+export type StatusEnvioKs =
+  | typeof STATUS_PROGRAMADO
+  | typeof STATUS_EM_TRANSITO
+  | typeof STATUS_RECEBIDO
 
 export interface EnvioRecebimentoKs {
   id: string
@@ -20,6 +28,17 @@ export interface EnvioRecebimentoKs {
   tara: number
   lotes: LoteRecebimentoKs[]
   is_simulated: boolean
+  // Campos do painel de consulta (migration 0013):
+  status: string // Programado | Em Trânsito | Recebido
+  origem: string
+  destino: string
+  data_programada: string // 'YYYY-MM-DD'
+  data_saida: string // 'YYYY-MM-DD'
+  data_recebimento: string // 'YYYY-MM-DD'
+  peso_previsto: number
+  peso_enviado: number
+  peso_recebido: number
+  situacao_adicional: string // 'Recebimento parcial' | 'Divergência de peso' | ''
 }
 
 function paraEnvio(record: Record<string, unknown>): EnvioRecebimentoKs {
@@ -34,6 +53,16 @@ function paraEnvio(record: Record<string, unknown>): EnvioRecebimentoKs {
     tara: Number(record.tara ?? 0),
     lotes: (record.lotes_json as LoteRecebimentoKs[] | undefined) ?? [],
     is_simulated: Boolean(record.is_simulated),
+    status: String(record.status ?? ''),
+    origem: String(record.origem ?? ''),
+    destino: String(record.destino ?? ''),
+    data_programada: String(record.data_programada ?? ''),
+    data_saida: String(record.data_saida ?? ''),
+    data_recebimento: String(record.data_recebimento ?? ''),
+    peso_previsto: Number(record.peso_previsto ?? 0),
+    peso_enviado: Number(record.peso_enviado ?? 0),
+    peso_recebido: Number(record.peso_recebido ?? 0),
+    situacao_adicional: String(record.situacao_adicional ?? ''),
   }
 }
 

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-11T19:29:46.449Z",
+  "generatedAt": "2026-11-12T11:46:34.044Z",
   "collections": [
     {
       "name": "users",
@@ -767,6 +767,66 @@
           "required": false,
           "system": false,
           "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "origem",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "destino",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "situacao_adicional",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_programada",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_saida",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_recebimento",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "peso_previsto",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "peso_enviado",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "peso_recebido",
+          "type": "number",
+          "required": false,
+          "system": false
         }
       ],
       "indexes": [
