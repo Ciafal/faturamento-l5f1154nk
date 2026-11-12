@@ -160,6 +160,7 @@ export async function acusarRecebimentoNfe(
   // 1. Atualiza o documento (status → Recebida + dados de recebimento)
   const docAtualizado = (await pb.collection(COLECAO_NFE_DOCS).update(nfe.id, {
     status: 'Recebida',
+    recebimento_status: 'Total',
     data_recebimento: `${dados.data_recebimento} ${dados.hora_recebimento}:00.000Z`,
     usuario_recebedor: dados.usuario_recebedor,
     centro: dados.centro,
@@ -216,6 +217,13 @@ export function formatarDataHoraNfe(iso?: string | null): string {
   const data = d.toLocaleDateString('pt-BR', { timeZone: TZ })
   const hora = d.toLocaleTimeString('pt-BR', { timeZone: TZ, hour12: false })
   return `${data} ${hora}`
+}
+
+export function formatarHoraNfe(iso?: string | null): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (isNaN(d.getTime())) return ''
+  return d.toLocaleTimeString('pt-BR', { timeZone: TZ, hour12: false })
 }
 
 export function formatarDataNfe(iso?: string | null): string {

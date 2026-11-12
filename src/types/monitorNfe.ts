@@ -78,6 +78,30 @@ export const CARD_STATUS_NFE: CardStatusNfe[] = [
   { status: 'Cancelada', rotulo: 'Cancelada', cor: 'bg-slate-400' },
 ]
 
+export type CorrelacaoStatus = 'Pendente' | 'Correlacionada' | 'Sem Pedido' | 'Divergente'
+
+export type RecebimentoStatus = 'Pendente' | 'Parcial' | 'Total'
+
+export const CORES_CORRELACAO: Record<CorrelacaoStatus, string> = {
+  Pendente: 'bg-amber-50 text-amber-700 border-amber-200',
+  Correlacionada: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  'Sem Pedido': 'bg-slate-100 text-slate-500 border-slate-200',
+  Divergente: 'bg-red-50 text-red-700 border-red-200',
+}
+
+export const CORES_RECEBIMENTO_STATUS: Record<RecebimentoStatus, string> = {
+  Pendente: 'bg-slate-100 text-slate-500 border-slate-200',
+  Parcial: 'bg-amber-50 text-amber-700 border-amber-200',
+  Total: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+}
+
+export interface PontoCorrecao {
+  campo: string
+  item: number
+  origem: string
+  problema: string
+}
+
 export interface NfeDocumento {
   id: string
   empresa: string
@@ -110,6 +134,14 @@ export interface NfeDocumento {
   xml_demo: string
   protocolo_autorizacao: string
   data_autorizacao: string
+  // Campos novos da Etapa 1 (monitor operacional) — podem ficar vazios.
+  filial?: string
+  fornecedor_codigo?: string
+  uf_emitente?: string
+  correlacao_status?: CorrelacaoStatus
+  alertas_count?: number
+  recebimento_status?: RecebimentoStatus
+  pontos_correcao?: PontoCorrecao[]
   created: string
   updated: string
 }
@@ -128,6 +160,12 @@ export interface NfeItem {
   valor_total: number
   pedido_informado_xml: string
   item_pedido: string
+  // Campos novos da Etapa 1 (por item) — podem ficar vazios.
+  filial?: string
+  recebimento_status?: RecebimentoStatus
+  pedido_sap?: string
+  item_pedido_sap?: string
+  quantidade_recebida?: number
 }
 
 export interface NfeRecebimento {

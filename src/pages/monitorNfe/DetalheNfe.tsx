@@ -1,6 +1,10 @@
-// Detalhe da NF-e — Dialog com 7 abas:
-//   1. Dados Gerais (infos do XML) | 2. Itens | 3. Recebimento |
-//   4. Pedido SAP/FCA | 5. Divergências | 6. Documentos (XML) | 7. Histórico
+// Detalhe da NF-e — Dialog com 8 abas (ETAPA 1):
+//   1. Dados Gerais | 2. Itens NF-e | 3. Pedido SAP | 4. Divergências |
+//   5. Pontos de Correção | 6. Recebimento Físico | 7. Documentos | 8. Histórico
+// Todo o conteúdo da Fase 1 foi preservado: Acusar Recebimento, XML/protocolo,
+// divergências, entradas SAP e histórico (append-only em nfe_logs).
+// As abas Pedido SAP, Pontos de Correção e Recebimento Físico têm conteúdo
+// estrutural (estado vazio honesto) — completas nas Etapas 2–4.
 import React, { useEffect, useState } from 'react'
 import {
   Dialog,
@@ -13,7 +17,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { ClipboardCheck, FileText, X } from 'lucide-react'
+import { ClipboardCheck, FileText, FileWarning, X } from 'lucide-react'
 import {
   formatarDataHoraNfe,
   formatarMoedaNfe,
@@ -23,6 +27,8 @@ import {
   listarNfeLogs,
 } from '@/services/monitorNfe'
 import {
+  CORES_CORRELACAO,
+  CORES_RECEBIMENTO_STATUS,
   CORES_STATUS_NFE,
   ROTULO_TIPO_DIVERGENCIA,
   type NfeDivergencia,
@@ -31,6 +37,7 @@ import {
   type NfeItem,
   type NfeLog,
 } from '@/types/monitorNfe'
+import { AbaPedidoSap, AbaPontosCorrecao, AbaRecebimentoFisico } from './AbasDetalhe'
 
 interface DetalheNfeProps {
   nfe: NfeDocumento | null
@@ -40,6 +47,7 @@ interface DetalheNfeProps {
 
 const rotulo = 'text-[10px] font-semibold text-slate-400 uppercase tracking-wide'
 const valor = 'text-xs text-slate-700'
+const triggerCls = 'text-xs px-3 data-[state=active]:bg-[#004c97] data-[state=active]:text-white'
 
 function Campo({ r, v, strong }: { r: string; v: React.ReactNode; strong?: boolean }) {
   return (
@@ -47,6 +55,16 @@ function Campo({ r, v, strong }: { r: string; v: React.ReactNode; strong?: boole
       <span className={rotulo}>{r}</span>
       <span className={`${valor} ${strong ? 'font-semibold text-[#004c97]' : ''}`}>{v || '—'}</span>
     </div>
+  )
+}
+
+function Chip({ cor, children }: { cor?: string; children: React.ReactNode }) {
+  return (
+    <span
+      className={`inline-flex items-center rounded-full border px-1.5 py-0 text-[9px] font-medium ${cor ?? 'bg-slate-100 text-slate-500 border-slate-200'}`}
+    >
+      {children}
+    </span>
   )
 }
 
@@ -80,7 +98,7 @@ const DetalheNfe: React.FC<DetalheNfeProps> = ({ nfe, onClose, onAcusarRecebimen
 
   return (
     <Dialog open={!!nfe} onOpenChange={(aberto) => !aberto && onClose()}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <div className="flex items-start justify-between gap-2 pr-6">
             <div>
@@ -111,46 +129,28 @@ const DetalheNfe: React.FC<DetalheNfeProps> = ({ nfe, onClose, onAcusarRecebimen
 
         <Tabs defaultValue="dados-gerais" className="w-full flex-1 overflow-hidden flex flex-col">
           <TabsList className="h-9 bg-slate-100 p-0.5 rounded-md w-fit flex-wrap">
-            <TabsTrigger
-              value="dados-gerais"
-              className="text-xs px-3 data-[state=active]:bg-[#004c97] data-[state=active]:text-white"
-            >
+            <TabsTrigger value="dados-gerais" className={triggerCls}>
               Dados Gerais
             </TabsTrigger>
-            <TabsTrigger
-              value="itens"
-              className="text-xs px-3 data-[state=active]:bg-[#004c97] data-[state=active]:text-white"
-            >
-              Itens
+            <TabsTrigger value="itens" className={triggerCls}>
+              Itens NF-e
             </TabsTrigger>
-            <TabsTrigger
-              value="recebimento"
-              className="text-xs px-3 data-[state=active]:bg-[#004c97] data-[state=active]:text-white"
-            >
-              Recebimento
+            <TabsTrigger value="pedido-sap" className={triggerCls}>
+              Pedido SAP
             </TabsTrigger>
-            <TabsTrigger
-              value="pedido-sap"
-              className="text-xs px-3 data-[state=active]:bg-[#004c97] data-[state=active]:text-white"
-            >
-              Pedido SAP/FCA
-            </TabsTrigger>
-            <TabsTrigger
-              value="divergencias"
-              className="text-xs px-3 data-[state=active]:bg-[#004c97] data-[state=active]:text-white"
-            >
+            <TabsTrigger value="divergencias" className={triggerCls}>
               Divergências
             </TabsTrigger>
-            <TabsTrigger
-              value="documentos"
-              className="text-xs px-3 data-[state=active]:bg-[#004c97] data-[state=active]:text-white"
-            >
+            <TabsTrigger value="pontos-correcao" className={triggerCls}>
+              Pontos de Correção
+            </TabsTrigger>
+            <TabsTrigger value="recebimento-fisico" className={triggerCls}>
+              Recebimento Físico
+            </TabsTrigger>
+            <TabsTrigger value="documentos" className={triggerCls}>
               Documentos
             </TabsTrigger>
-            <TabsTrigger
-              value="historico"
-              className="text-xs px-3 data-[state=active]:bg-[#004c97] data-[state=active]:text-white"
-            >
+            <TabsTrigger value="historico" className={triggerCls}>
               Histórico
             </TabsTrigger>
           </TabsList>
@@ -171,6 +171,29 @@ const DetalheNfe: React.FC<DetalheNfeProps> = ({ nfe, onClose, onAcusarRecebimen
                 <Campo r="CNPJ destinatário" v={nfe.cnpj_destinatario} />
                 <Campo r="Empresa" v={nfe.empresa} />
                 <Campo r="CFOP" v={nfe.cfop} />
+                <Campo r="Filial" v={nfe.filial} />
+                <Campo r="Região (UF)" v={nfe.uf_emitente} />
+                <Campo r="Código fornecedor (SAP)" v={nfe.fornecedor_codigo} />
+                <Campo
+                  r="Correlação"
+                  v={
+                    nfe.correlacao_status ? (
+                      <Chip cor={CORES_CORRELACAO[nfe.correlacao_status]}>
+                        {nfe.correlacao_status}
+                      </Chip>
+                    ) : null
+                  }
+                />
+                <Campo
+                  r="Recebimento"
+                  v={
+                    nfe.recebimento_status ? (
+                      <Chip cor={CORES_RECEBIMENTO_STATUS[nfe.recebimento_status]}>
+                        {nfe.recebimento_status}
+                      </Chip>
+                    ) : null
+                  }
+                />
                 <Campo r="Valor produtos" v={`R$ ${formatarMoedaNfe(nfe.valor_produtos)}`} />
                 <Campo r="ICMS" v={`R$ ${formatarMoedaNfe(nfe.valor_icms)}`} />
                 <Campo r="IPI" v={`R$ ${formatarMoedaNfe(nfe.valor_ipi)}`} />
@@ -189,7 +212,7 @@ const DetalheNfe: React.FC<DetalheNfeProps> = ({ nfe, onClose, onAcusarRecebimen
               </div>
             </TabsContent>
 
-            {/* ---- 2. Itens ---- */}
+            {/* ---- 2. Itens NF-e ---- */}
             <TabsContent value="itens" className="mt-0">
               <div className="rounded-md border bg-white overflow-x-auto">
                 <table className="w-full text-[11px]">
@@ -253,75 +276,12 @@ const DetalheNfe: React.FC<DetalheNfeProps> = ({ nfe, onClose, onAcusarRecebimen
               </div>
             </TabsContent>
 
-            {/* ---- 3. Recebimento ---- */}
-            <TabsContent value="recebimento" className="mt-0">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 rounded-md border bg-white p-3">
-                <Campo r="Data/hora do recebimento" v={formatarDataHoraNfe(nfe.data_recebimento)} />
-                <Campo r="Usuário recebedor" v={nfe.usuario_recebedor} />
-                <Campo r="Centro" v={nfe.centro} />
-                <Campo r="Local de recebimento" v={nfe.local_recebimento} />
-                <Campo r="Observações" v={nfe.observacoes_recebimento} />
-                <Campo
-                  r="Manifestação à SEFAZ"
-                  v="Não enviada (funcionalidade futura independente)"
-                />
-              </div>
-            </TabsContent>
-
-            {/* ---- 4. Pedido SAP/FCA ---- */}
+            {/* ---- 3. Pedido SAP (estrutural — Etapa 2) ---- */}
             <TabsContent value="pedido-sap" className="mt-0">
-              <div className="flex flex-col gap-3">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 rounded-md border bg-white p-3">
-                  <Campo r="Pedido SAP" v={nfe.pedido_sap} />
-                  <Campo r="Entrada SAP (nº documento)" v={nfe.entrada_sap_doc} />
-                  <Campo
-                    r="Status de vinculação"
-                    v={nfe.pedido_sap ? 'Vinculada' : 'Aguardando vinculação SAP'}
-                  />
-                </div>
-                <div className="rounded-md border bg-white overflow-x-auto">
-                  <table className="w-full text-[11px]">
-                    <thead>
-                      <tr className="bg-slate-50">
-                        {['Nº documento', 'Data', 'Usuário', 'Centro', 'Observações'].map((c) => (
-                          <th
-                            key={c}
-                            className="px-2 py-1.5 text-left font-semibold text-slate-600"
-                          >
-                            {c}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {entradasSap.length === 0 && (
-                        <tr>
-                          <td colSpan={5} className="px-2 py-4 text-center text-slate-400">
-                            Nenhum documento de entrada SAP registrado.
-                          </td>
-                        </tr>
-                      )}
-                      {entradasSap.map((e) => (
-                        <tr key={e.id} className="border-t hover:bg-slate-50">
-                          <td className="px-2 py-1.5 font-medium">{e.numero_documento}</td>
-                          <td className="px-2 py-1.5">{formatarDataHoraNfe(e.data_entrada)}</td>
-                          <td className="px-2 py-1.5">{e.usuario}</td>
-                          <td className="px-2 py-1.5">{e.centro}</td>
-                          <td className="px-2 py-1.5">{e.observacoes}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  {entradasSap.some((e) => e.is_simulated) && (
-                    <div className="border-t bg-amber-50 px-2 py-1.5 text-[11px] text-amber-700">
-                      Documento de entrada SAP simulado (demo) — nenhum lançamento real no SAP ECC.
-                    </div>
-                  )}
-                </div>
-              </div>
+              <AbaPedidoSap nfe={nfe} />
             </TabsContent>
 
-            {/* ---- 5. Divergências ---- */}
+            {/* ---- 4. Divergências ---- */}
             <TabsContent value="divergencias" className="mt-0">
               <div className="rounded-md border bg-white overflow-x-auto">
                 <table className="w-full text-[11px]">
@@ -368,28 +328,56 @@ const DetalheNfe: React.FC<DetalheNfeProps> = ({ nfe, onClose, onAcusarRecebimen
               </div>
             </TabsContent>
 
-            {/* ---- 6. Documentos ---- */}
+            {/* ---- 5. Pontos de Correção (estrutural — Etapa 3) ---- */}
+            <TabsContent value="pontos-correcao" className="mt-0">
+              <AbaPontosCorrecao nfe={nfe} pontos={nfe.pontos_correcao ?? []} />
+            </TabsContent>
+
+            {/* ---- 6. Recebimento Físico (estrutural — Etapa 4) ---- */}
+            <TabsContent value="recebimento-fisico" className="mt-0">
+              <AbaRecebimentoFisico nfe={nfe} />
+            </TabsContent>
+
+            {/* ---- 7. Documentos (XML + DANFE) ---- */}
             <TabsContent value="documentos" className="mt-0">
-              <div className="rounded-md border bg-white p-3 flex flex-col gap-2">
-                <div className="flex items-center gap-2 text-xs text-slate-700">
-                  <FileText className="h-4 w-4 text-slate-400" />
-                  <span className="font-medium">XML original da NF-e</span>
-                  {nfe.is_simulated && (
-                    <Badge
-                      variant="outline"
-                      className="text-[10px] border-amber-300 text-amber-700 bg-amber-50"
-                    >
-                      XML de demonstração
-                    </Badge>
+              <div className="rounded-md border bg-white p-3 flex flex-col gap-3">
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2 text-xs text-slate-700">
+                    <FileText className="h-4 w-4 text-slate-400" />
+                    <span className="font-medium">XML original da NF-e</span>
+                    {nfe.is_simulated && (
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] border-amber-300 text-amber-700 bg-amber-50"
+                      >
+                        XML de demonstração
+                      </Badge>
+                    )}
+                  </div>
+                  {nfe.xml_demo ? (
+                    <pre className="text-[10px] leading-relaxed bg-slate-900 text-slate-100 rounded-md p-3 overflow-x-auto max-h-72 whitespace-pre-wrap">
+                      {nfe.xml_demo}
+                    </pre>
+                  ) : (
+                    <div className="rounded-md border border-dashed bg-slate-50 px-3 py-6 text-center text-[11px] text-slate-400">
+                      XML indisponível para esta NF-e.
+                    </div>
                   )}
                 </div>
-                <pre className="text-[10px] leading-relaxed bg-slate-900 text-slate-100 rounded-md p-3 overflow-x-auto max-h-72 whitespace-pre-wrap">
-                  {nfe.xml_demo}
-                </pre>
+                <div className="flex flex-col gap-2 border-t pt-3">
+                  <div className="flex items-center gap-2 text-xs text-slate-700">
+                    <FileWarning className="h-4 w-4 text-slate-400" />
+                    <span className="font-medium">DANFE</span>
+                  </div>
+                  <div className="rounded-md border border-dashed bg-slate-50 px-3 py-6 text-center text-[11px] text-slate-400">
+                    DANFE não disponível — o documento PDF/espelho será exibido aqui quando anexado
+                    à NF-e (Etapa 4 — Recebimento Físico e documentos).
+                  </div>
+                </div>
               </div>
             </TabsContent>
 
-            {/* ---- 7. Histórico ---- */}
+            {/* ---- 8. Histórico ---- */}
             <TabsContent value="historico" className="mt-0">
               <div className="rounded-md border bg-white overflow-x-auto">
                 <table className="w-full text-[11px]">

@@ -1,9 +1,10 @@
-// Tela ENT-09 "Monitor NF-e de Entrada" — Fase 1.
-// Dashboard (8 cards por status) + grade de 14 colunas + filtros combináveis +
+// Tela ENT-09 "Monitor NF-e de Entrada" — Monitor Operacional (ETAPA 1).
+// Dashboard (8 cards por status) + filtros combináveis + grade operacional de
+// 22 colunas (seleção múltipla, ordenação, paginação, colunas fixas, resize) +
 // exportação CSV + botão "Sincronizar SEFAZ" (bloqueado por certificado, via
-// pb_hooks) + detalhe da NF-e em 7 abas + "Acusar Recebimento" (sem
+// pb_hooks) + detalhe da NF-e em 8 abas + "Acusar Recebimento" (sem
 // manifestação à SEFAZ e sem lançamento SAP).
-// Massa de dados de DEMONSTRAÇÃO (nfe_documentos, migrations 0014/0015) —
+// Massa de dados de DEMONSTRAÇÃO (nfe_documentos, migrations 0014–0017) —
 // claramente identificada como simulada.
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
@@ -27,6 +28,8 @@ import {
   listarNfeDocumentos,
   sincronizarSefaz,
   formatarDataHoraNfe,
+  formatarDataNfe,
+  formatarHoraNfe,
   formatarMoedaNfe,
 } from '@/services/monitorNfe'
 import type { DadosRecebimento, NfeDocumento, StatusNfe } from '@/types/monitorNfe'
@@ -207,11 +210,11 @@ const MonitorNfeEntrada: React.FC = () => {
     setSelecionadas((sel) => (sel.includes(id) ? sel.filter((x) => x !== id) : [...sel, id]))
   }
 
-  const alternarTodos = () => {
-    setSelecionadas((sel) =>
-      sel.length === documentosFiltrados.length ? [] : documentosFiltrados.map((d) => d.id),
-    )
+  const alternarTodos = (ids: string[]) => {
+    setSelecionadas((sel) => (sel.length === ids.length ? [] : ids))
   }
+
+  const limparSelecao = () => setSelecionadas([])
 
   const aoExportarCsv = () => {
     const linhas = documentosFiltrados.filter(
@@ -220,33 +223,51 @@ const MonitorNfeEntrada: React.FC = () => {
     const cabecalho = [
       'Status',
       'Empresa',
+      'Filial',
       'NF',
       'Série',
+      'Chave de acesso',
+      'Natureza operação',
       'Emissão',
+      'Hora',
       'Fornecedor',
+      'Cód. fornecedor',
       'CNPJ emitente',
+      'UF',
+      'CNPJ destinatário',
       'CFOP',
       'Valor (R$)',
+      'Pedido SAP',
+      'Correlação',
+      'Divergência',
+      'Alertas',
       'Recebimento',
       'Responsável',
-      'Pedido SAP',
-      'Divergência',
       'Entrada SAP',
     ]
     const linhasCsv = linhas.map((d) => [
       d.status,
       d.empresa,
+      d.filial,
       d.numero,
       d.serie,
-      formatarDataHoraNfe(d.data_emissao),
+      d.chave_acesso,
+      d.natureza_operacao,
+      formatarDataNfe(d.data_emissao),
+      formatarHoraNfe(d.data_emissao),
       d.fornecedor_razao_social,
+      d.fornecedor_codigo,
       d.fornecedor_cnpj,
+      d.uf_emitente,
+      d.cnpj_destinatario,
       d.cfop,
       formatarMoedaNfe(d.valor_total),
-      formatarDataHoraNfe(d.data_recebimento),
-      d.usuario_recebedor,
       d.pedido_sap,
+      d.correlacao_status,
       d.tem_divergencia ? 'Sim' : 'Não',
+      String(d.alertas_count ?? 0),
+      d.recebimento_status,
+      d.usuario_recebedor,
       d.entrada_sap_doc,
     ])
     const csv = [cabecalho, ...linhasCsv]
@@ -414,14 +435,17 @@ const MonitorNfeEntrada: React.FC = () => {
         </Button>
       </div>
 
-      {/* Grade principal */}
+      {/* Grade operacional */}
       <GradeNfe
         documentos={documentosFiltrados}
         carregando={carregando}
         selecionadas={selecionadas}
         onToggleSelecao={alternarSelecao}
         onToggleTodos={alternarTodos}
+        onLimparSelecao={limparSelecao}
         onAbrirDetalhe={setDocDetalhe}
+        onAcusarRecebimento={setDocRecebimento}
+        onExportarCsv={aoExportarCsv}
       />
 
       {/* Detalhe (Dialog) */}
