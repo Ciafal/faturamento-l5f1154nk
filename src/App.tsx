@@ -16,6 +16,7 @@ import EnvioParaKsForm from './pages/EnvioParaKsForm'
 import HistoricoProcessamentos from './pages/HistoricoProcessamentos'
 import AguardandoEspecificacao from './pages/AguardandoEspecificacao'
 import RecebimentoKsForm from './pages/RecebimentoKsForm'
+import MonitorNfeEntrada from './pages/MonitorNfeEntrada'
 import AmostraGratisForm from './pages/AmostraGratisForm'
 import ParametrizacaoCfops from './pages/ParametrizacaoCfops'
 import NotFound from './pages/NotFound'
@@ -74,6 +75,9 @@ const App = () => (
             />
             {/* Recebimento KS (ENT-08) — conferência de lotes e pesagem, modo demonstração */}
             <Route path="/processos/entradas/recebimento-ks" element={<RecebimentoKsForm />} />
+
+            {/* Monitor NF-e de Entrada (ENT-09) — dashboard 8 status, Fase 1 */}
+            <Route path="/processos/entradas/monitor-nfe" element={<MonitorNfeEntrada />} />
 
             {/* Os 7 processos de Saídas (Aguardando Especificação) */}
             <Route

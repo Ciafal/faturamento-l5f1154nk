@@ -107,6 +107,18 @@ export const PROCESSOS_ENTRADAS: ProcessItem[] = [
     categoriaSap: 'E7',
     iconeNome: 'PackageCheck',
   },
+  {
+    id: 'entrada-monitor-nfe',
+    route: '/processos/entradas/monitor-nfe',
+    codigo: 'ENT-09',
+    titulo: 'Monitor NF-e',
+    tipo: 'entrada',
+    descricao:
+      'Monitor das NF-e de entrada capturadas da SEFAZ (Fase 1): dashboard por status, divergências, acusar recebimento e pendência de certificado A1 para sincronização.',
+    statusImplementacao: 'funcional_demonstracao',
+    categoriaSap: 'E8',
+    iconeNome: 'MonitorCheck',
+  },
 ]
 
 export const PROCESSOS_SAIDAS: ProcessItem[] = [

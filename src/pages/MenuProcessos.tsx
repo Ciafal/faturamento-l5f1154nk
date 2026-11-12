@@ -22,6 +22,7 @@ import {
   Undo2,
   Wrench,
   BadgePercent,
+  MonitorCheck,
 } from 'lucide-react'
 
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -39,6 +40,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
   Undo2,
   Wrench,
   BadgePercent,
+  MonitorCheck,
 }
 
 interface MenuProcessosProps {
