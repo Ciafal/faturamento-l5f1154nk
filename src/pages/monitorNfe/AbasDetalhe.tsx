@@ -1,10 +1,18 @@
-// Abas estruturais novas do detalhe NF-e (ETAPA 1) — conteúdo mínimo honesto:
-// as abas "Pedido SAP", "Pontos de Correção" e "Recebimento Físico" serão
-// preenchidas nas Etapas 2–4; aqui apenas estruturam o estado atual real.
-import type { ReactNode } from 'react'
+// Abas do detalhe NF-e. A aba "Pedido SAP" lista os vínculos reais NF-e x
+// pedido (ETAPA 2) com o banner de modo demonstração; "Pontos de Correção" e
+// "Recebimento Físico" permanecem estruturais (Etapas 3–4).
+import { useEffect, useState, type ReactNode } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { ClipboardList, PackageCheck, ShoppingCart } from 'lucide-react'
-import { ROTULO_TIPO_DIVERGENCIA, type NfeDocumento, type PontoCorrecao } from '@/types/monitorNfe'
+import {
+  ROTULO_TIPO_DIVERGENCIA,
+  CORES_CORRELACAO,
+  type NfeDocumento,
+  type NfeVinculoPedido,
+  type PontoCorrecao,
+} from '@/types/monitorNfe'
+import { listarVinculosPedido } from '@/services/monitorNfe'
+import { formatarMoedaNfe, formatarDataHoraNfe } from '@/services/monitorNfe'
 
 const rotulo = 'text-[10px] font-semibold text-slate-400 uppercase tracking-wide'
 const valor = 'text-xs text-slate-700'
@@ -46,14 +54,24 @@ function EstadoVazio({ texto }: { texto: string }) {
   )
 }
 
-// ---- Aba "Pedido SAP" ------------------------------------------------------
+// ---- Aba "Pedido SAP": vínculos reais por item (ETAPA 2) --------------------
 export function AbaPedidoSap({ nfe }: { nfe: NfeDocumento }) {
+  const [vinculos, setVinculos] = useState<NfeVinculoPedido[]>([])
+
+  useEffect(() => {
+    let vivo = true
+    listarVinculosPedido(nfe.id).then((r) => vivo && setVinculos(r))
+    return () => {
+      vivo = false
+    }
+  }, [nfe.id])
+
   return (
     <div className="flex flex-col gap-3">
       <CabecalhoAba
         icone={<ShoppingCart className="h-4 w-4" />}
         titulo="Pedido SAP / Correlação compra x NF-e"
-        descricao="Vinculação entre os itens da NF-e e os pedidos de compra SAP (correlação automática — Etapa 2)."
+        descricao="Vínculos gravados entre os itens desta NF-e e os pedidos de compra SAP (Etapa 2)."
       />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 rounded-md border bg-white p-3">
         <Campo r="Pedido SAP (cabeçalho)" v={nfe.pedido_sap} />
@@ -61,14 +79,82 @@ export function AbaPedidoSap({ nfe }: { nfe: NfeDocumento }) {
         <Campo r="Correlação" v={nfe.correlacao_status ?? 'Pendente'} />
         <Campo r="Divergências" v={nfe.tem_divergencia ? 'Sim' : 'Não'} />
       </div>
-      <EstadoVazio
-        texto={
-          nfe.pedido_sap
-            ? 'Detalhamento dos itens do pedido SAP (posição, saldo, valor) será exibido na Etapa 2 — Correlação automática.'
-            : 'Nenhum pedido SAP vinculado a esta NF-e ainda — a correlação compra x NF-e será executada na Etapa 2.'
-        }
-      />
+      <div className="rounded bg-amber-50 border border-amber-200 px-2 py-1.5 text-[11px] text-amber-700">
+        SAP indisponível — dados de demonstração (pedidos simulados; integração real será via
+        RFC/BAPI).
+      </div>
+      {vinculos.length === 0 ? (
+        <EstadoVazio texto="Nenhum vínculo gravado para esta NF-e — use “Correlacionar Pedido SAP” na grade para vincular os itens." />
+      ) : (
+        <div className="rounded-md border bg-white overflow-x-auto">
+          <table className="w-full text-[11px]">
+            <thead>
+              <tr className="bg-slate-50">
+                {[
+                  'Item NF',
+                  'Pedido',
+                  'Item pedido',
+                  'Material SAP',
+                  'Qtd. vinculada',
+                  'Vínculo',
+                  'Status',
+                  'Origem',
+                  'Vinculado em',
+                  'Usuário',
+                ].map((c) => (
+                  <th
+                    key={c}
+                    className="px-2 py-1.5 text-left font-semibold text-slate-600 whitespace-nowrap"
+                  >
+                    {c}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {vinculos.map((v) => (
+                <tr key={v.id} className="border-t hover:bg-slate-50">
+                  <td className="px-2 py-1.5">{v.item_nfe}</td>
+                  <td className="px-2 py-1.5 font-medium text-[#004c97]">{v.pedido_numero}</td>
+                  <td className="px-2 py-1.5">{v.pedido_item}</td>
+                  <td className="px-2 py-1.5">{v.material_sap || '—'}</td>
+                  <td className="px-2 py-1.5 text-right">{v.quantidade.toLocaleString('pt-BR')}</td>
+                  <td className="px-2 py-1.5">
+                    <Chip cor={CORES_CORRELACAO[v.tipo_vinculo]}>{v.tipo_vinculo}</Chip>
+                  </td>
+                  <td className="px-2 py-1.5">{v.status}</td>
+                  <td className="px-2 py-1.5">
+                    {v.origem === 'sugestao' ? 'Sugestão confirmada' : 'Manual'}
+                  </td>
+                  <td className="px-2 py-1.5 whitespace-nowrap">
+                    {formatarDataHoraNfe(v.created)}
+                  </td>
+                  <td className="px-2 py-1.5">{v.usuario}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {vinculos.some((v) => v.observacao) && (
+        <div className="rounded border bg-slate-50 px-2 py-1.5 text-[10px] text-slate-500">
+          {vinculos
+            .filter((v) => v.observacao)
+            .map((v) => `Item ${v.item_nfe}: ${v.observacao}`)
+            .join(' · ')}
+        </div>
+      )}
     </div>
+  )
+}
+
+function Chip({ cor, children }: { cor?: string; children: ReactNode }) {
+  return (
+    <span
+      className={`inline-flex items-center rounded-full border px-1.5 py-0 text-[9px] font-medium ${cor ?? 'bg-slate-100 text-slate-500 border-slate-200'}`}
+    >
+      {children}
+    </span>
   )
 }
 

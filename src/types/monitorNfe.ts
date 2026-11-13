@@ -219,6 +219,60 @@ export interface NfeLog {
   created: string
 }
 
+export interface NfePedidoSap {
+  id: string
+  numero: string
+  item: string
+  fornecedor_codigo: string
+  fornecedor_nome: string
+  material_sap: string
+  material_descricao: string
+  quantidade_pedida: number
+  quantidade_recebida: number
+  unidade: string
+  preco_unitario: number
+  centro: string
+  deposito: string
+  status_item: string
+  data_pedido: string
+  is_simulated: boolean
+}
+
+export type OrigemVinculo = 'automatica' | 'manual'
+
+export interface NfeVinculoPedido {
+  id: string
+  nfe: string
+  nfe_item: string
+  nfe_numero: string
+  item_numero: number
+  pedido_numero: string
+  pedido_item: string
+  material_sap: string
+  quantidade_vinculada: number
+  origem: OrigemVinculo
+  criterio: string
+  usuario: string
+  vinculado: boolean
+  is_simulated: boolean
+  created: string
+}
+
+export type CriterioSugestao =
+  | 'Pedido informado no XML'
+  | 'Item do pedido informado no XML'
+  | 'Fornecedor'
+  | 'Material'
+  | 'Quantidade'
+  | 'Preço'
+  | 'Saldo do pedido'
+
+export interface SugestaoCorrelacao {
+  criterio: CriterioSugestao
+  prioridade: number
+  aviso?: string // divergência observada na sugestão (ex.: preço/saldo)
+}
+
 export interface NfeSyncState {
   id: string
   servico: string

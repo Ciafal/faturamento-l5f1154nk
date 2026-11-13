@@ -14,6 +14,7 @@ import {
   ClipboardCheck,
   Download,
   Eye,
+  Link2,
   MoreVertical,
   X,
 } from 'lucide-react'
@@ -49,6 +50,7 @@ interface GradeNfeProps {
   onLimparSelecao: () => void
   onAbrirDetalhe: (doc: NfeDocumento) => void
   onAcusarRecebimento: (doc: NfeDocumento) => void
+  onCorrelacionar: (docs: NfeDocumento[]) => void
   onExportarCsv: () => void
 }
 
@@ -123,6 +125,7 @@ const GradeNfe: React.FC<GradeNfeProps> = ({
   onLimparSelecao,
   onAbrirDetalhe,
   onAcusarRecebimento,
+  onCorrelacionar,
   onExportarCsv,
 }) => {
   const [ordenacao, setOrdenacao] = useState<{ id: string; dir: 'asc' | 'desc' } | null>(null)
@@ -269,6 +272,9 @@ const GradeNfe: React.FC<GradeNfeProps> = ({
               <DropdownMenuItem onClick={() => onAbrirDetalhe(d)}>
                 <Eye className="mr-2 h-3.5 w-3.5" /> Abrir detalhe
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onCorrelacionar([d])}>
+                <Link2 className="mr-2 h-3.5 w-3.5" /> Correlacionar Pedido SAP
+              </DropdownMenuItem>
               {podeAcusarRecebimento(d) && (
                 <DropdownMenuItem onClick={() => onAcusarRecebimento(d)}>
                   <ClipboardCheck className="mr-2 h-3.5 w-3.5" /> Acusar recebimento
@@ -329,6 +335,14 @@ const GradeNfe: React.FC<GradeNfeProps> = ({
             {selecionadas.length} NF-e selecionada{selecionadas.length > 1 ? 's' : ''}
           </span>
           <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-[11px]"
+              onClick={() => onCorrelacionar(documentos.filter((d) => selecionadas.includes(d.id)))}
+            >
+              <Link2 className="mr-1 h-3 w-3" /> Correlacionar Pedido SAP
+            </Button>
             <Button variant="outline" size="sm" className="h-7 text-[11px]" onClick={onExportarCsv}>
               <Download className="mr-1 h-3 w-3" /> Exportar CSV
             </Button>

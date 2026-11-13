@@ -11,8 +11,10 @@ import type {
   NfeEntradaSap,
   NfeItem,
   NfeLog,
+  NfePedidoSap,
   NfeRecebimento,
   NfeSyncState,
+  NfeVinculoPedido,
   ResultadoSyncSefaz,
 } from '@/types/monitorNfe'
 
@@ -24,6 +26,8 @@ export const COLECAO_NFE_ENTSAP = 'nfe_entrada_sap'
 export const COLECAO_NFE_LOGS = 'nfe_logs'
 export const COLECAO_NFE_SYNC = 'nfe_sync_state'
 export const COLECAO_NFE_CONFIG = 'nfe_config'
+export const COLECAO_NFE_PEDIDOS_SAP = 'nfe_pedidos_sap'
+export const COLECAO_NFE_VINCULOS = 'nfe_vinculos_pedido'
 
 // ---------------------------------------------------------------------------
 // Consultas
@@ -202,6 +206,33 @@ export async function acusarRecebimentoNfe(
   })
 
   return docAtualizado
+}
+
+// ---------------------------------------------------------------------------
+// Pedidos SAP de demonstração + vínculos de correlação (Etapa 2)
+// ---------------------------------------------------------------------------
+
+export async function listarNfePedidosSap(): Promise<NfePedidoSap[]> {
+  try {
+    const recs = await pb.collection(COLECAO_NFE_PEDIDOS_SAP).getFullList({
+      sort: 'numero,item',
+    })
+    return recs as unknown as NfePedidoSap[]
+  } catch {
+    return []
+  }
+}
+
+export async function listarVinculosPedido(nfeId: string): Promise<NfeVinculoPedido[]> {
+  try {
+    const recs = await pb.collection(COLECAO_NFE_VINCULOS).getFullList({
+      filter: `nfe = "${nfeId}"`,
+      sort: '-created',
+    })
+    return recs as unknown as NfeVinculoPedido[]
+  } catch {
+    return []
+  }
 }
 
 // ---------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T17:02:58.842Z",
+  "generatedAt": "2026-11-13T13:26:02.576Z",
   "collections": [
     {
       "name": "users",
@@ -1656,9 +1656,256 @@
           "required": false,
           "system": false,
           "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "integracao_habilitada",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "modo",
+          "type": "text",
+          "required": false,
+          "system": false
         }
       ],
       "indexes": ["CREATE UNIQUE INDEX idx_nfe_config_chave ON nfe_config (chave)"]
+    },
+    {
+      "name": "nfe_pedidos_sap",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": null,
+        "update": null,
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "numero",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "item",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "fornecedor_codigo",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "fornecedor_nome",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "material_sap",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "material_descricao",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "quantidade_pedida",
+          "type": "number",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "quantidade_recebida",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "unidade",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "preco_unitario",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "centro",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "deposito",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "status_item",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "data_pedido",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "is_simulated",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_nfe_ped_sap_item ON nfe_pedidos_sap (numero, item)",
+        "CREATE INDEX idx_nfe_ped_sap_forn ON nfe_pedidos_sap (fornecedor_codigo)",
+        "CREATE INDEX idx_nfe_ped_sap_mat ON nfe_pedidos_sap (material_sap)"
+      ]
+    },
+    {
+      "name": "nfe_vinculos_pedido",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": null,
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "nfe",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "nfe_documentos"
+        },
+        {
+          "name": "nfe_item",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "nfe_itens"
+        },
+        {
+          "name": "nfe_numero",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "item_numero",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "pedido_numero",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "pedido_item",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "material_sap",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "quantidade_vinculada",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "origem",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["automatica", "manual"]
+        },
+        {
+          "name": "criterio",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "usuario",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "is_simulated",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "vinculado",
+          "type": "bool",
+          "required": false,
+          "system": false
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_nfe_vinc_nfe ON nfe_vinculos_pedido (nfe)",
+        "CREATE INDEX idx_nfe_vinc_nfe_item ON nfe_vinculos_pedido (nfe, item_numero)",
+        "CREATE INDEX idx_nfe_vinc_pedido ON nfe_vinculos_pedido (pedido_numero, pedido_item)"
+      ]
     }
   ]
 }
